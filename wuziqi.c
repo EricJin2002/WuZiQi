@@ -369,4 +369,5 @@ int main(){
         //getchar();
         sleep(1);
     }
+    getchar();
 }
