@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "iostream": "cpp",
+        "*.tcc": "c",
+        "istream": "c",
+        "cstdlib": "c",
+        "limits": "c",
+        "wuziqi.h": "c",
+        "time.h": "c"
+    }
+}
