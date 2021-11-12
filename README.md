@@ -4,8 +4,6 @@
 
 终于把C语言课程大作业-五子棋写完了。虽然高中时曾写过一遍，本想着直接拿去用了。但一方面，学校课程要求纯C完成、不能有图形界面；另一方面，规则相比原来复杂许多，增添了禁手限制——看来还是得重新写一遍。＞﹏＜
 
-在同学的帮助下，第二代五子棋相比第一代改进了算法，并增加了一些功能。在此表示感谢。
-
 具体代码计划于课程结束后扔到[EricJin2002/wuziqi: UCAS大二C语言课程大作业 (github.com)](https://github.com/EricJin2002/wuziqi)。
 
 # 编译
@@ -467,11 +465,3 @@ void lianzhu_refresh_ban_near(int x0,int y0){
 直接用alpha-beta算法替换min-max算法即可，详见[Alpha-beta剪枝 - 维基百科](https://zh.wikipedia.org/wiki/Alpha-beta剪枝)
 
 剪枝算法能大大优化性能，从而在有限的时间内实现更多层数的搜索。
-
-# 后记
-
-写这些主要是为了备忘，告诉未来的lazybirds，lazybird_202110写了些什么。
-
-如果能帮到你，就更好了。
-
-就酱。
