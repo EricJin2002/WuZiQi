@@ -1,19 +1,19 @@
 #pragma once
 #include "wuziqi.h"
-#include "lianzhu.h"
+#include "lianzhu2.h"
 
 //第三维度0位存总评分，1-4位存黑棋评分，5-8存白棋评分，9存黑棋总分，10存白棋总分
 int fg4_value[16][16][11];
 int fg4_x_self,fg4_y_self;
 
-int fg4_calc_value(int x0,int y0,bool color,int dir){
+int fg4_calc_value(int x0,int y0,bool color,int dir_4){
 
     int rem=board[x0][y0];
     board[x0][y0]=2+color;
-    if(ban_black) lianzhu_refresh_ban_near(x0,y0);
+    if(ban_black) lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4);
 
     int score;
-    switch (lianzhu_calc(x0,y0,color,dir,ban_black)){
+    switch (lianzhu_calc(x0,y0,color,dir_4,ban_black)){
     case CHANG_LIAN: score= 5000000;break;
     case CHENG_5: score= 5000000;break;
     case HUO_4: score= 100000;break;
@@ -30,12 +30,17 @@ int fg4_calc_value(int x0,int y0,bool color,int dir){
     }
 
     board[x0][y0]=rem;
-    if(ban_black) lianzhu_refresh_ban_near(x0,y0); 
+    if(ban_black) lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4); 
 
     return score;
 }
 
 void fg4_refresh_value(int (*value)[16][11],int x0,int y0){
+    lianzhu_refresh_ban_near(x0,y0);
+    //DONE: 211127 
+    //注：211112的那版程序这里有问题，这句是必须的。
+    //原因在于robot5调用robot4时，若每层落子点附近的禁手点不刷新，其效果会累积。
+    //robot4自身使用时没这个问题，因为棋盘每轮稳定刷新禁手点。
     for(int dir_8=1;dir_8<=8;dir_8++){
         int dx=0,dy=0,score=0;
         switch (dir_8){

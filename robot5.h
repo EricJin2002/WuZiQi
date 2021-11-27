@@ -1,14 +1,17 @@
 #pragma once 
 #include "wuziqi.h"
 #include "robot4.h"
-#include "lianzhu.h"
+#include "lianzhu2.h"
 
 bool fg5_self;
 int fg5_value[16][16][11];
 int fg5_x_self,fg5_y_self;
 
 #define MAX_WIDTH 7
-#define IDEAL_WIDTH 5
+#define BEGIN_STEP 6
+#define BEGIN_WIDTH 6
+#define BEGIN_DEPTH 9//7
+#define IDEAL_WIDTH 6//6
 #define IDEAL_DEPTH 9 //odd recommended
 
 int WIDTH=IDEAL_WIDTH;
@@ -38,7 +41,8 @@ int fg5_calc_score(int alpha,int beta,int *x0,int *y0,int i,int j,int depth,bool
     }
     int rem=board[i][j];
     board[i][j]=whom+2;
-    fg4_refresh_value(fg5_value,i,j);//TODO: refresh bans
+
+    fg4_refresh_value(fg5_value,i,j);//TODO: refresh bans //DONE: 211127
     int tmp=score,i0=i,j0=j;
     score=(is_self?*my_max:*my_min)(score,minmax(alpha,beta,&i,&j,depth-1,!is_self));
     if(score!=tmp){
@@ -139,9 +143,9 @@ void fg5(){
         fg4_refresh_value(fg5_value,last_x,last_y);
         //fg4_debug(fg5_value);
         printf("计算中...\n");
-        if(step<=6){
-            WIDTH=5;
-            DEPTH=7;//odd recommended
+        if(step<=BEGIN_STEP){
+            WIDTH=BEGIN_WIDTH;
+            DEPTH=BEGIN_DEPTH;//odd recommended
         }else{
             WIDTH=IDEAL_WIDTH;
             DEPTH=IDEAL_DEPTH;
@@ -207,6 +211,23 @@ void fg5(){
                             y=j;
                         }
                     }
+                }
+            }
+        }
+        //防止憨憨的机器干傻事
+        for(int i=1;i<=15;i++){
+            for(int j=1;j<=15;j++){
+                if(!board[i][j]&&win_or_not(i,j,!(step%2))){
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+        for(int i=1;i<=15;i++){
+            for(int j=1;j<=15;j++){
+                if(!board[i][j]&&win_or_not(i,j,step%2)){
+                    x=i;
+                    y=j;
                 }
             }
         }

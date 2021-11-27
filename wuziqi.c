@@ -1,5 +1,5 @@
 #include "wuziqi.h"
-#include "lianzhu.h"
+#include "lianzhu2.h"
 //#include "robot12.h"
 //#include "robot3.h"
 #include "robot4.h"
