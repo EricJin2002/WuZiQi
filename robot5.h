@@ -8,8 +8,11 @@ int fg5_value[16][16][11];
 int fg5_x_self,fg5_y_self;
 
 #define MAX_WIDTH 7
-int WIDTH=5;
-int DEPTH=9;//odd recommended
+#define IDEAL_WIDTH 5
+#define IDEAL_DEPTH 9 //odd recommended
+
+int WIDTH=IDEAL_WIDTH;
+int DEPTH=IDEAL_DEPTH;
 int my_min(int a,int b){
     return a<b?a:b;
 }
@@ -127,18 +130,21 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
 void fg5(){
     fg5_self=step%2;
     x=y=0;
-    if(step!=1){
+    if(step<=2){
+        x=8;
+        y=9-step;
+    }else{
         fg4_refresh_value(fg5_value,fg5_x_self,fg5_y_self);
         //fg4_debug();
         fg4_refresh_value(fg5_value,last_x,last_y);
         //fg4_debug(fg5_value);
         printf("计算中...\n");
         if(step<=6){
-            WIDTH=6;
+            WIDTH=5;
             DEPTH=7;//odd recommended
         }else{
-            WIDTH=5;
-            DEPTH=9;
+            WIDTH=IDEAL_WIDTH;
+            DEPTH=IDEAL_DEPTH;
         }
         if(minmax(-1000000000,+1000000000,&x,&y,DEPTH,true)==1000000000) printf("嘿嘿，你要输啦！（￣︶￣）↗　\n");
         if(!x||!y){//使用fg4
@@ -204,25 +210,6 @@ void fg5(){
                 }
             }
         }
-        /*
-        for(int i=1;i<=15;i++){
-            for(int j=1;j<=15;j++){
-                if(!board[i][j]&&win_or_not(i,j,!(step%2))){
-                    x=i;
-                    y=j;
-                }
-            }
-        }
-        for(int i=1;i<=15;i++){
-            for(int j=1;j<=15;j++){
-                if(!board[i][j]&&win_or_not(i,j,step%2)){
-                    x=i;
-                    y=j;
-                }
-            }
-        }*/
-    }else{
-        x=y=8;
     }
     fg5_x_self=x;
     fg5_y_self=y;

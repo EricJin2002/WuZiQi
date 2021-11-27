@@ -158,7 +158,7 @@ void lianzhu_refresh_ban_near(int x0,int y0){
         case 8:dy=1;break;
         default:break;
         }
-        int x1,y1,dir_4;
+        int x1,y1;
         for(int k=1;k<=5;k++){
             x1=x0+k*dx;
             y1=y0+k*dy;
