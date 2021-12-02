@@ -36,7 +36,7 @@ int fg4_calc_value(int x0,int y0,bool color,int dir_4){
 }
 
 void fg4_refresh_value(int (*value)[16][11],int x0,int y0){
-    lianzhu_refresh_ban_near(x0,y0);
+    if(ban_black) lianzhu_refresh_ban_near(x0,y0);
     //DONE: 211127 
     //注：211112的那版程序这里有问题，这句是必须的。
     //原因在于robot5调用robot4时，若每层落子点附近的禁手点不刷新，其效果会累积。
