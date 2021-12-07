@@ -160,12 +160,7 @@ void lianzhu_refresh_ban_at_dir_near(int x0,int y0,int dir_4){
         y1=y0+k*dy;
         if(x1>=1&&x1<=15&&y1>=1&&y1<=15){
             if(board[x1][y1]<=0){
-                switch (dir_4){
-                    case 1:lianzhu[x1][y1][1]=lianzhu_calc(x1,y1,black,1,false);break;
-                    case 2:lianzhu[x1][y1][2]=lianzhu_calc(x1,y1,black,2,false);break;
-                    case 3:lianzhu[x1][y1][3]=lianzhu_calc(x1,y1,black,3,false);break;
-                    case 4:lianzhu[x1][y1][4]=lianzhu_calc(x1,y1,black,4,false);break;
-                }
+                lianzhu[x1][y1][dir_4]=lianzhu_calc(x1,y1,black,dir_4,false);
                 board[x1][y1]=lianzhu_judge_ban(x1,y1)?-2:0;
             }
         }else{

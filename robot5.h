@@ -132,7 +132,7 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
 }
 
 void fg5(){
-    fg5_self=step%2;
+    fg5_self=step&1;
     x=y=0;
     if(step<=2){
         x=8;
@@ -169,7 +169,7 @@ void fg5(){
                 }
                 for(int i=1;i<=15;i++){
                     for(int j=1;j<=15;j++){
-                        if(!board[i][j]&&win_or_not(i,j,!(step%2))){
+                        if(!board[i][j]&&win_or_not(i,j,!(step&1))){
                             x=i;
                             y=j;
                         }
@@ -177,7 +177,7 @@ void fg5(){
                 }
                 for(int i=1;i<=15;i++){
                     for(int j=1;j<=15;j++){
-                        if(board[i][j]<=0&&win_or_not(i,j,step%2)){
+                        if(board[i][j]<=0&&win_or_not(i,j,step&1)){
                             x=i;
                             y=j;
                         }
@@ -198,7 +198,7 @@ void fg5(){
                 }
                 for(int i=1;i<=15;i++){
                     for(int j=1;j<=15;j++){
-                        if(!board[i][j]&&win_or_not(i,j,!(step%2))){
+                        if(!board[i][j]&&win_or_not(i,j,!(step&1))){
                             x=i;
                             y=j;
                         }
@@ -206,7 +206,7 @@ void fg5(){
                 }
                 for(int i=1;i<=15;i++){
                     for(int j=1;j<=15;j++){
-                        if(!board[i][j]&&win_or_not(i,j,step%2)){
+                        if(!board[i][j]&&win_or_not(i,j,step&1)){
                             x=i;
                             y=j;
                         }
@@ -217,7 +217,7 @@ void fg5(){
         //防止憨憨的机器干傻事
         for(int i=1;i<=15;i++){
             for(int j=1;j<=15;j++){
-                if(!board[i][j]&&win_or_not(i,j,!(step%2))){
+                if(!board[i][j]&&win_or_not(i,j,!(step&1))){
                     x=i;
                     y=j;
                 }
@@ -225,7 +225,7 @@ void fg5(){
         }
         for(int i=1;i<=15;i++){
             for(int j=1;j<=15;j++){
-                if(!board[i][j]&&win_or_not(i,j,step%2)){
+                if(!board[i][j]&&win_or_not(i,j,step&1)){
                     x=i;
                     y=j;
                 }

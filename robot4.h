@@ -107,7 +107,7 @@ void fg4(){
             }
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(!board[i][j]&&win_or_not(i,j,!(step%2))){
+                    if(!board[i][j]&&win_or_not(i,j,!(step&1))){
                         x=i;
                         y=j;
                     }
@@ -115,7 +115,7 @@ void fg4(){
             }
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(board[i][j]<=0&&win_or_not(i,j,step%2)){
+                    if(board[i][j]<=0&&win_or_not(i,j,step&1)){
                         x=i;
                         y=j;
                     }
@@ -136,7 +136,7 @@ void fg4(){
             }
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(!board[i][j]&&win_or_not(i,j,!(step%2))){
+                    if(!board[i][j]&&win_or_not(i,j,!(step&1))){
                         x=i;
                         y=j;
                     }
@@ -144,7 +144,7 @@ void fg4(){
             }
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(!board[i][j]&&win_or_not(i,j,step%2)){
+                    if(!board[i][j]&&win_or_not(i,j,step&1)){
                         x=i;
                         y=j;
                     }
