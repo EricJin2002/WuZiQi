@@ -41,3 +41,5 @@ bool is_robot[2];
 bool win_or_not(int x0,int y0,bool whom);
 
 bool ban_black;
+
+clock_t start,end;

@@ -9,19 +9,34 @@ int fg5_x_self,fg5_y_self;
 
 #define MAX_WIDTH 7
 #define BEGIN_STEP 6
-#define BEGIN_WIDTH 6
+#define BEGIN_WIDTH 8
 #define BEGIN_DEPTH 9//7
-#define IDEAL_WIDTH 6//6
+#define IDEAL_WIDTH 8//6
 #define IDEAL_DEPTH 9 //odd recommended
 
 int WIDTH=IDEAL_WIDTH;
 int DEPTH=IDEAL_DEPTH;
+/*
 int my_min(int a,int b){
     return a<b?a:b;
 }
 int my_max(int a,int b){
     return a<b?b:a;
-}
+}*/
+
+#define my_min(a, b)	\
+({                      \
+	typeof(a) _a = (a);	\
+	typeof(b) _b = (b);	\
+	_a <= _b ? _a : _b;	\
+})
+#define my_max(a, b)	\
+({                      \
+	typeof(a) _a = (a);	\
+	typeof(b) _b = (b);	\
+	_a >= _b ? _a : _b;	\
+})
+
 void swap(int *a,int *b){
     int t=*a;
     *a=*b;
@@ -31,7 +46,7 @@ int me_max=0;
 int thee_max=0;
 int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self);
 int fg5_calc_score(int alpha,int beta,int *x0,int *y0,int i,int j,int depth,bool is_self){
-    int score=1000000000*(is_self?-1:1);
+    int score=(is_self?-1000000000:1000000000);
     bool whom=!(is_self^fg5_self);
     if(win_or_not(i,j,whom)){
         *x0=i;
@@ -44,7 +59,11 @@ int fg5_calc_score(int alpha,int beta,int *x0,int *y0,int i,int j,int depth,bool
 
     fg4_refresh_value(fg5_value,i,j);//TODO: refresh bans //DONE: 211127
     int tmp=score,i0=i,j0=j;
-    score=(is_self?*my_max:*my_min)(score,minmax(alpha,beta,&i,&j,depth-1,!is_self));
+    score=(is_self?
+        my_max(score,minmax(alpha,beta,&i,&j,depth-1,!is_self)):
+        my_min(score,minmax(alpha,beta,&i,&j,depth-1,!is_self))
+    );
+    //score=(is_self?*my_max:*my_min)(score,minmax(alpha,beta,&i,&j,depth-1,!is_self));
     if(score!=tmp){
         *x0=i0;
         *y0=j0;
@@ -56,6 +75,23 @@ int fg5_calc_score(int alpha,int beta,int *x0,int *y0,int i,int j,int depth,bool
 }
 
 int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
+    switch(WIDTH){
+    case 6:
+        if((double)(clock()-start)/CLOCKS_PER_SEC>14){
+            printf("头秃￣へ￣\n");
+            WIDTH=5;
+        }
+        break;
+    case 5:
+        break;
+    default:
+        if((double)(clock()-start)/CLOCKS_PER_SEC>10){
+            printf("你好厉害￣へ￣\n");
+            WIDTH=6;
+        }
+        break;
+    }
+
     if(!depth){
         me_max=thee_max=0;
         for(int i=1;i<=15;i++){
@@ -102,6 +138,7 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
         for(int j=1;j<=15;j++){
             if(whom?!board[i][j]:(board[i][j]<=0)){
                 int curr_value=fg5_value[i][j][0];
+                /*
                 int curr_i=i;
                 int curr_j=j;
                 for(int k=0;k<WIDTH;k++){
@@ -110,11 +147,24 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
                         swap(j_+k,&curr_j);
                         swap(max_+k,&curr_value);
                     }
-                }                
+                }*/
+                if(curr_value>max_[WIDTH-1]){
+                    int k=WIDTH-2;
+                    for(;k>=0;k--){
+                        if(curr_value>max_[k]){
+                            max_[k+1]=max_[k];
+                            i_[k+1]=i_[k];
+                            j_[k+1]=j_[k];
+                        }else break;
+                    }
+                    max_[k+1]=curr_value;
+                    i_[k+1]=i;
+                    j_[k+1]=j;
+                }
             }
         }
     }
-    int EXM=1000000000*(is_self?-1:1),K=0;
+    int EXM=is_self?-1000000000:1000000000,K=0;
     for(int k=0;k<WIDTH;k++){
         if(i_[k]&&j_[k]){
             score_[k]=fg5_calc_score(alpha,beta,x_+k,y_+k,i_[k],j_[k],depth,is_self);
@@ -131,7 +181,7 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
                 }
                 beta=my_min(beta,EXM);
             }
-            if(depth==DEPTH) printf("%d %d %d %d\n",i_[k],j_[k],score_[k],fg5_value[i_[k]][j_[k]][0]);
+            if(depth==DEPTH) printf("%c%d %d %d\n",j_[k]+'A'-1,i_[k],score_[k],fg5_value[i_[k]][j_[k]][0]);
             if(beta<=alpha) break;
         }
     }
@@ -152,6 +202,7 @@ void fg5(){
         fg4_refresh_value(fg5_value,last_x,last_y);
         //fg4_debug(fg5_value);
         printf("计算中...\n");
+        start=clock();
         if(step<=BEGIN_STEP){
             WIDTH=BEGIN_WIDTH;
             DEPTH=BEGIN_DEPTH;//odd recommended
@@ -160,6 +211,8 @@ void fg5(){
             DEPTH=IDEAL_DEPTH;
         }
         if(minmax(-1000000000,+1000000000,&x,&y,DEPTH,true)==1000000000) printf("嘿嘿，你要输啦！（￣︶￣）↗　\n");
+        end=clock();
+        printf("计算结束，用时%f\n",(double)(end-start)/CLOCKS_PER_SEC);
         if(!x||!y){//使用fg4
             printf("可以认输吗QAQ\n");
             int max=-1;
