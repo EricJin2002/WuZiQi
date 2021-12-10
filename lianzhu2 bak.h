@@ -145,38 +145,32 @@ void lianzhu_refresh_ban(){
     }
 }
 
+void lianzhu_refresh_ban_at_dir_near(int x0,int y0,int dir_4){
+    int x1,y1,dx=0,dy=0;
+    switch (dir_4){
+    case 1:dx=dy=1;break;
+    case 2:dx=1;break;
+    case 3:dx=1;dy=-1;break;
+    case 4:dy=-1;break;
+    default:break;
+    }
+    for(int k=-5;k<=5;k++){
+        if(k==0) continue;
+        x1=x0+k*dx;
+        y1=y0+k*dy;
+        if(x1>=1&&x1<=15&&y1>=1&&y1<=15){
+            if(board[x1][y1]<=0){
+                lianzhu[x1][y1][dir_4]=lianzhu_calc(x1,y1,black,dir_4,false);
+                board[x1][y1]=lianzhu_judge_ban(x1,y1)?-2:0;
+            }
+        }else{
+            break;
+        }
+    }
+}
 
 void lianzhu_refresh_ban_near(int x0,int y0){
-    for(int dir_8=1;dir_8<=8;dir_8++){
-        int dx=0,dy=0;
-        switch (dir_8){
-        case 1:dx=dy=1;break;
-        case 2:dx=1;break;
-        case 3:dx=1;dy=-1;break;
-        case 4:dy=-1;break;
-        case 5:dx=dy=-1;break;
-        case 6:dx=-1;break;
-        case 7:dx=-1;dy=1;break;
-        case 8:dy=1;break;
-        default:break;
-        }
-        int x1,y1;
-        for(int k=1;k<=5;k++){
-            x1=x0+k*dx;
-            y1=y0+k*dy;
-            if(x1>=1&&x1<=15&&y1>=1&&y1<=15){
-                if(board[x1][y1]<=0){
-                    switch (dir_8){
-                        case 1:case 5:lianzhu[x1][y1][1]=lianzhu_calc(x1,y1,black,1,false);break;
-                        case 2:case 6:lianzhu[x1][y1][2]=lianzhu_calc(x1,y1,black,2,false);break;
-                        case 3:case 7:lianzhu[x1][y1][3]=lianzhu_calc(x1,y1,black,3,false);break;
-                        case 4:case 8:lianzhu[x1][y1][4]=lianzhu_calc(x1,y1,black,4,false);break;
-                    }
-                    board[x1][y1]=lianzhu_judge_ban(x1,y1)?-2:0;
-                }
-            }else{
-                break;
-            }
-        }
+    for(int dir_4=1;dir_4<=4;dir_4++){
+        lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4);
     }
 }

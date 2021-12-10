@@ -72,6 +72,15 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
                         thee_max=fg5_value[i][j][10-!fg5_self];
                     }
                 }
+                /*
+                if(board[i][j]>0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
+                    if((board[i][j]&1)==fg5_self){
+                        if(me_max<=fg5_value[i][j][10-fg5_self]) me_max=fg5_value[i][j][10-fg5_self];
+                    }
+                    else{
+                        if(thee_max<=fg5_value[i][j][10-!fg5_self]) thee_max=fg5_value[i][j][10-!fg5_self];
+                    }
+                }*/
             }
         }
         return me_max-thee_max;
@@ -238,6 +247,7 @@ void fg5(){
 
 void nt5(){
     memset(fg5_value,0,sizeof(fg5_value));
+    lianzhu_calc_init();
 }
 
 void re5(bool is_black){

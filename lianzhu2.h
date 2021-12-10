@@ -1,6 +1,6 @@
 #pragma once
 #include "wuziqi.h"
-
+/*
 void lianzhu_find(int *x0,int *y0,int dx,int dy,int *n,bool *blank,bool *color,bool consider_ban){
     if(!consider_ban||!*color){
         while((*x0<=15&&*x0>=1&&*y0<=15&&*y0>=1||(*blank=false))&&*n<=4){
@@ -32,7 +32,7 @@ void lianzhu_find(int *x0,int *y0,int dx,int dy,int *n,bool *blank,bool *color,b
             (*n)++;
         }
     }
-}
+}*/
 #define CHANG_LIAN 6
 #define CHENG_5 5
 #define HUO_4 4
@@ -46,6 +46,144 @@ void lianzhu_find(int *x0,int *y0,int dx,int dy,int *n,bool *blank,bool *color,b
 #define HUO_2 2
 #define MIAN_2 20
 
+#define EMPTY 0b00
+#define SELF 0b01
+#define BAN 0b10
+#define ENEMY 0b11
+
+int lianzhu_calc_map[300000][2];
+void lianzhu_calc_find(int *pattern,int *x0,int d,int *n,bool *blank,bool consider_ban){
+    if(!consider_ban){
+        while((*x0<=16&&*x0>=0||(*blank=false))&&*n<=4){
+            if(((*pattern>>*x0)&0b11)==ENEMY){
+                //敌方
+                *blank=false;
+                break;
+            }else if(((*pattern>>*x0)&0b11)!=SELF){
+                //为空
+                break;
+            }
+            *x0+=d;
+            (*n)++;
+        }
+    }else{
+        while((*x0<=16&&*x0>=0||(*blank=false))&&*n<=4){
+            if(((*pattern>>*x0)&0b11)==ENEMY){
+                //敌方
+                *blank=false;
+                break;
+            }else if(((*pattern>>*x0)&0b11)==EMPTY){
+                //为空
+                break;
+            }else if(((*pattern>>*x0)&0b11)==BAN){
+                //己方禁手
+                *blank=false;   
+                break;
+            }
+            *x0+=d;
+            (*n)++;
+        }
+    }
+}
+
+int lianzhu_calc_gen(int *pattern,bool consider_ban){
+    int i=1,j=1;
+    int i_x=2*5;
+    int j_x=2*3;
+    bool i_blank=true;
+    bool j_blank=true;
+    lianzhu_calc_find(pattern,&i_x,2,&i,&i_blank,consider_ban);
+    lianzhu_calc_find(pattern,&j_x,-2,&j,&j_blank,consider_ban);
+    if(i+j>=7){
+        return CHANG_LIAN;
+    }else if(i+j==6){//连五11111
+        return CHENG_5;
+    }else if(i+j==5){//连四1111
+        if(i_blank&&j_blank) return HUO_4;//活四011110
+        if(i_blank||j_blank) return CHONG_4;//冲四011112
+        return SI_4;//211112
+    }else{
+        int ii_x=i_x+2,ii=i+1;
+        bool ii_blank=i_blank;
+        int jj_x=j_x-2,jj=j+1;
+        bool jj_blank=j_blank;
+        if(i_blank){
+            lianzhu_calc_find(pattern,&ii_x,2,&ii,&ii_blank,consider_ban);
+        }
+        if(j_blank){
+            lianzhu_calc_find(pattern,&jj_x,-2,&jj,&jj_blank,consider_ban);
+        }
+        if(i+j==4){//连三111
+            if(ii+j>5&&jj+i>5) return _4_4;//双四1011101
+            if(ii+j>5||jj+i>5) return CHONG_4;//冲四10111
+            if(ii_blank&&jj_blank) return HUO_3;//活三0011100
+            if(ii_blank&&j_blank||jj_blank&&i_blank) return TIAO_HUO_3;//跳活三0011102
+            if(i_blank&&j_blank) return MIAN_3;//眠三2011102
+            else if(jj_blank||ii_blank) return MIAN_3;//眠三211100
+            return 0;
+        }
+        if(ii+j>5&&jj+i>5) return _4_4;//双四11011011,111010111
+        if(ii+j>5||jj+i>5) return CHONG_4;//冲四11011,11101
+        if(ii+j>4&&jj+i>4&&ii_blank&&jj_blank) return HUO_3;//活三01011010,011010110    
+        if(ii_blank&&j_blank&&ii+j>4||
+            jj_blank&&i_blank&&jj+i>4) return TIAO_HUO_3;//跳活三010110
+        if((ii_blank||j_blank)&&ii+j>4||
+            (jj_blank||i_blank)&&jj+i>4) return MIAN_3;//眠三010112,210110
+        if(ii_blank&&j_blank&&ii+j>3||
+            jj_blank&&i_blank&&jj+i>3) return HUO_2;//活二001010,001100
+        if((ii_blank||j_blank)&&ii+j>3||
+            (jj_blank||i_blank)&&jj+i>3) return MIAN_2;//眠二20110，21010，21100
+        return 0;
+    }
+}
+void lianzhu_calc_init(){
+    for(int pattern=0;pattern<=262143;pattern++){
+        bool consider_ban=false;
+        do{
+            lianzhu_calc_map[pattern][consider_ban]=lianzhu_calc_gen(&pattern,consider_ban);
+            if(lianzhu_calc_map[pattern][consider_ban]){
+                printf("%x  %d\n",pattern,lianzhu_calc_map[pattern][consider_ban]);
+            }
+        }while(consider_ban^=1);
+    }
+        //getchar();
+        //printf("%d\n",lianzhu_calc_map[0b0101010000][1]);
+        //getchar();
+}
+int lianzhu_calc(int x0,int y0,bool color,int dir,bool consider_ban){
+    //int rem=board[x0][y0];
+    //board[x0][y0]=color+2;
+
+    int dx=0,dy=0;
+    switch (dir){
+    case 1:dx=dy=1;break;
+    case 2:dx=1;break;
+    case 3:dx=1;dy=-1;break;
+    case 4:dy=-1;break;
+    default:break;
+    }
+    int x3=x0-dx*4;
+    int y3=y0-dy*4;
+    int pattern=0;
+    for(int i=-4;i<=4;i++,x3+=dx,y3+=dy){
+        pattern<<=2;
+        if(x3<1||x3>15||y3<1||y3>15){
+            pattern|=ENEMY;
+            continue;
+        }
+        switch(board[x3][y3]){
+        case 0:
+            pattern|=EMPTY;break;
+        case -2:
+            pattern|=BAN;break;
+        default:
+            pattern|=(((board[x3][y3]&1)==color)?SELF:ENEMY);break;
+        }
+    }
+    //board[x0][y0]=rem;
+    return lianzhu_calc_map[pattern][consider_ban&&color];
+}
+/*
 int lianzhu_calc(int x0,int y0,bool color,int dir,bool consider_ban){
     int dx=0,dy=0;
     switch (dir){
@@ -103,7 +241,7 @@ int lianzhu_calc(int x0,int y0,bool color,int dir,bool consider_ban){
             (jj_blank||i_blank)&&jj+i>3) return MIAN_2;//眠二20110，21010，21100
         return 0;
     }
-}
+}*/
 
 int lianzhu[16][16][5];
 bool lianzhu_judge_ban(int x0,int y0){

@@ -160,6 +160,7 @@ void fg4(){
 
 void nt4(){
     memset(fg4_value,0,sizeof(fg4_value));
+    lianzhu_calc_init();
 }
 
 void re4(bool is_black){
