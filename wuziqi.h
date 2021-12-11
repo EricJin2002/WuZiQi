@@ -51,8 +51,8 @@ clock_t start,end;
 
 //lianzhu2.c
 
-#define CHANG_LIAN 6
-#define CHENG_5 5
+#define CHANG_LIAN -6
+#define CHENG_5 -5
 #define HUO_4 4
 #define CHONG_4 104
 #define SI_4 40
@@ -102,8 +102,8 @@ int fg5_value[16][16][11];
 int fg5_x_self,fg5_y_self;
 
 #define MAX_WIDTH 8
-#define BEGIN_STEP 6
-#define BEGIN_WIDTH 8
+#define BEGIN_STEP 8
+#define BEGIN_WIDTH 7
 #define BEGIN_DEPTH 11//7
 #define IDEAL_WIDTH 8//6
 #define IDEAL_DEPTH 11 //odd recommended
@@ -156,7 +156,7 @@ tree *fg6_tree;
 tree *tree_choose(tree *node,int i,int j);
 tree *tree_init(int value,int i,int j);
 void tree_free(tree **nodeptr);
-int fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self);
+void fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self);
 void fg6_search_tops(bool whom,tree *node);
 int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self);
 void fg6_calc(int depth);

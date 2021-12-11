@@ -43,10 +43,11 @@ void tree_free(tree **nodeptr){
     (*nodeptr)=NULL;
 }
 
-int fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self){
+void fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self){
     bool whom=!(is_self^fg5_self);
     if(win_or_not(node->i,node->j,whom)){
-        return is_self?1000000000:-1000000000;
+        node->value=is_self?1000000000:-1000000000;
+        return;
     }
     int rem=board[node->i][node->j];
     board[node->i][node->j]=whom+2;
@@ -58,47 +59,45 @@ int fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self){
 
     board[node->i][node->j]=rem;
     fg4_refresh_value(fg5_value,node->i,node->j);
-    return score;
+    node->value=score;
 }
 
 void fg6_search_tops(bool whom,tree *node){
-    if(!node->searched){
-        for(int k=0;k<MAX_WIDTH;k++){
-            node->son[k]=(tree *)malloc(sizeof(tree));
-            memset(node->son[k],0,sizeof(tree));
-        }
-        for(int i=1;i<=15;i++){
-            for(int j=1;j<=15;j++){
-                if(whom?!board[i][j]:(board[i][j]<=0)){
-                    int curr_value=fg5_value[i][j][0];
-                    /*
-                    int curr_i=i;
-                    int curr_j=j;
-                    for(int k=0;k<WIDTH;k++){
-                        if(curr_value>max_[k]){
-                            swap(i_+k,&curr_i);
-                            swap(j_+k,&curr_j);
-                            swap(max_+k,&curr_value);
-                        }
-                    }*/
-                    if(curr_value>node->son[MAX_WIDTH-1]->value){
-                        int k=MAX_WIDTH-2;
-                        for(;k>=0;k--){
-                            if(curr_value>node->son[k]->value){
-                                node->son[k+1]->value=node->son[k]->value;
-                                node->son[k+1]->i=node->son[k]->i;
-                                node->son[k+1]->j=node->son[k]->j;
-                            }else break;
-                        }
-                        node->son[k+1]->value=curr_value;
-                        node->son[k+1]->i=i;
-                        node->son[k+1]->j=j;
+    for(int k=0;k<MAX_WIDTH;k++){
+        node->son[k]=(tree *)malloc(sizeof(tree));
+        memset(node->son[k],0,sizeof(tree));
+    }
+    for(int i=1;i<=15;i++){
+        for(int j=1;j<=15;j++){
+            if(whom?!board[i][j]:(board[i][j]<=0)){
+                int curr_value=fg5_value[i][j][0];
+                /*
+                int curr_i=i;
+                int curr_j=j;
+                for(int k=0;k<WIDTH;k++){
+                    if(curr_value>max_[k]){
+                        swap(i_+k,&curr_i);
+                        swap(j_+k,&curr_j);
+                        swap(max_+k,&curr_value);
                     }
+                }*/
+                if(curr_value>node->son[MAX_WIDTH-1]->value){
+                    int k=MAX_WIDTH-2;
+                    for(;k>=0;k--){
+                        if(curr_value>node->son[k]->value){
+                            node->son[k+1]->value=node->son[k]->value;
+                            node->son[k+1]->i=node->son[k]->i;
+                            node->son[k+1]->j=node->son[k]->j;
+                        }else break;
+                    }
+                    node->son[k+1]->value=curr_value;
+                    node->son[k+1]->i=i;
+                    node->son[k+1]->j=j;
                 }
             }
         }
-        node->searched=true;
     }
+    node->searched=true;
 }
 
 int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
@@ -112,7 +111,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     case 5:
         break;
     default:
-        if((double)(clock()-start)/CLOCKS_PER_SEC>8){
+        if((double)(clock()-start)/CLOCKS_PER_SEC>9){
             printf("你好厉害￣へ￣\n");
             WIDTH=6;
         }
@@ -150,14 +149,16 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     }
 
 
-    fg6_search_tops(!(is_self^fg5_self),node);
-
+    if(!node->searched) fg6_search_tops(!(is_self^fg5_self),node);
+    /*else{
+        printf("在第%d层，%c%d被跳过\n",depth,'A'+node->j-1,node->i);
+    //    getchar();
+    }*/
 
     int EXM=is_self?-1000000000:1000000000,K=0;
     for(int k=0;k<WIDTH;k++){
         if(node->son[k]->i&&node->son[k]->j){
-            node->son[k]->value=
-                fg6_calc_score(alpha,beta,node->son[k],depth,is_self);
+            fg6_calc_score(alpha,beta,node->son[k],depth,is_self);
             if(is_self){
                 if(node->son[k]->value>EXM){
                     EXM=node->son[k]->value;

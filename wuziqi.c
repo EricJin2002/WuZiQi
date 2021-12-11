@@ -15,6 +15,13 @@ bool win_or_not(int x0,int y0,bool whom){
     if(i+j==6) return true;
     return false;
 }
+/*
+bool win_or_not(int x0,int y0,bool whom){
+    return lianzhu_calc(x0,y0,whom,1,0)<0|
+        lianzhu_calc(x0,y0,whom,2,0)<0||
+        lianzhu_calc(x0,y0,whom,3,0)<0||
+        lianzhu_calc(x0,y0,whom,4,0)<0;
+}*/
 
 void choose_player(){
     char ch;
