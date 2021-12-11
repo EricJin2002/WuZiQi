@@ -6,36 +6,25 @@ void swap(int *a,int *b){
     *b=t;
 }
 
-int fg5_calc_score(int alpha,int beta,int *x0,int *y0,int i,int j,int depth,bool is_self){
-    int score=(is_self?-1000000000:1000000000);
+int fg5_calc_score(int alpha,int beta,int i,int j,int depth,bool is_self){
     bool whom=!(is_self^fg5_self);
     if(win_or_not(i,j,whom)){
-        *x0=i;
-        *y0=j;
-        //printf("%d %d %d %d %s\n",*x0,*y0,-score,depth,"win");
-        return -score;
+        return is_self?1000000000:-1000000000;
     }
     int rem=board[i][j];
     board[i][j]=whom+2;
+    fg4_refresh_value(fg5_value,i,j);
 
-    fg4_refresh_value(fg5_value,i,j);//TODO: refresh bans //DONE: 211127
-    int tmp=score,i0=i,j0=j;
-    score=(is_self?
-        my_max(score,minmax(alpha,beta,&i,&j,depth-1,!is_self)):
-        my_min(score,minmax(alpha,beta,&i,&j,depth-1,!is_self))
-    );
-    //score=(is_self?*my_max:*my_min)(score,minmax(alpha,beta,&i,&j,depth-1,!is_self));
-    if(score!=tmp){
-        *x0=i0;
-        *y0=j0;
-        //printf("%d %d %d %d %d %d\n",*x0,*y0,score,depth,me_max,thee_max);
-    }
-    board[i0][j0]=rem;
-    fg4_refresh_value(fg5_value,i0,j0);
+    int i_new=i,j_new=j;
+    int score=minmax(alpha,beta,&i_new,&j_new,depth-1,!is_self);
+
+    board[i][j]=rem;
+    fg4_refresh_value(fg5_value,i,j);
     return score;
 }
 
 int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
+    //动态调节搜索宽度
     switch(WIDTH){
     case 6:
         if((double)(clock()-start)/CLOCKS_PER_SEC>14){
@@ -52,7 +41,7 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
         }
         break;
     }
-
+    //底层判断
     if(!depth){
         me_max=thee_max=0;
         for(int i=1;i<=15;i++){
@@ -82,6 +71,7 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
         }
         return me_max-thee_max;
     }
+    //选取估值最大的MAX_WIDTH个点
     bool whom=!(is_self^fg5_self);
     int max_[MAX_WIDTH];
     int i_[MAX_WIDTH];
@@ -125,10 +115,11 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
             }
         }
     }
+    //进行深搜
     int EXM=is_self?-1000000000:1000000000,K=0;
     for(int k=0;k<WIDTH;k++){
         if(i_[k]&&j_[k]){
-            score_[k]=fg5_calc_score(alpha,beta,x_+k,y_+k,i_[k],j_[k],depth,is_self);
+            score_[k]=fg5_calc_score(alpha,beta,i_[k],j_[k],depth,is_self);
             if(is_self){
                 if(score_[k]>EXM){
                     EXM=score_[k];
@@ -146,8 +137,8 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
             if(beta<=alpha) break;
         }
     }
-    *x0=x_[K];//Why not i_[k]? seems all right
-    *y0=y_[K];
+    *x0=i_[K];
+    *y0=j_[K];
     return score_[K];
 }
 

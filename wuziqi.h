@@ -135,7 +135,7 @@ int my_max(int a,int b){
 int me_max;
 int thee_max;
 void swap(int *a,int *b);
-int fg5_calc_score(int alpha,int beta,int *x0,int *y0,int i,int j,int depth,bool is_self);
+int fg5_calc_score(int alpha,int beta,int i,int j,int depth,bool is_self);
 int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self);
 void fg5();
 void nt5();
