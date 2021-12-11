@@ -104,7 +104,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     switch(WIDTH){
     case 6:
         if((double)(clock()-start)/CLOCKS_PER_SEC>13){
-            printf("头秃￣へ￣\n");
+            printf("头秃(￣へ￣)\n");
             WIDTH=5;
         }
         break;
@@ -112,7 +112,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
         break;
     default:
         if((double)(clock()-start)/CLOCKS_PER_SEC>9){
-            printf("你好厉害￣へ￣\n");
+            printf("你好厉害(￣へ￣)\n");
             WIDTH=6;
         }
         break;
@@ -224,7 +224,7 @@ void fg6(){
         fg6_calc(DEPTH);
         end=clock();
         printf("计算结束，用时%f\n",(double)(end-start)/CLOCKS_PER_SEC);
-        /*if(!x||!y){//使用fg4
+        /*if(!x||!y){//使用fg4（这样不好，因为对手长连不算输）
             printf("可以认输吗QAQ\n");
             int max=-1;
             if(!(step&1)){

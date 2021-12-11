@@ -122,9 +122,9 @@ void lianzhu_calc_init(){
         bool consider_ban=false;
         do{
             lianzhu_calc_map[pattern][consider_ban]=lianzhu_calc_gen(&pattern,consider_ban);
-            if(lianzhu_calc_map[pattern][consider_ban]){
-                printf("%x  %d\n",pattern,lianzhu_calc_map[pattern][consider_ban]);
-            }
+            //if(lianzhu_calc_map[pattern][consider_ban]){
+            //    printf("%x  %d\n",pattern,lianzhu_calc_map[pattern][consider_ban]);
+            //}
         }while(consider_ban^=1);
     }
         //getchar();

@@ -103,7 +103,7 @@ int fg5_x_self,fg5_y_self;
 
 #define MAX_WIDTH 8
 #define BEGIN_STEP 8
-#define BEGIN_WIDTH 7
+#define BEGIN_WIDTH 6
 #define BEGIN_DEPTH 11//7
 #define IDEAL_WIDTH 8//6
 #define IDEAL_DEPTH 11 //odd recommended
