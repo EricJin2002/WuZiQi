@@ -1,30 +1,104 @@
 #include "wuziqi.h"
 
-void swap(int *a,int *b){
-    int t=*a;
-    *a=*b;
-    *b=t;
+tree *tree_choose(tree *node,int i,int j){
+    tree *ans=NULL;
+    for(int k=0;k<MAX_WIDTH&&node->son[k];k++){
+        if(node->son[k]->i==node->i&&node->son[k]->j==node->j){
+            ans=node->son[k];
+            k++;
+            for(;k<MAX_WIDTH&&node->son[k];k++){
+                tree_free(&node->son[k]);
+            }
+        }else{
+            tree_free(&node->son[k]);
+        }
+    }
+    free(node);
+    if(!ans){
+        ans=(tree *)malloc(sizeof(tree));
+        memset(ans,0,sizeof(tree));
+    }
+    return ans;
 }
 
-int fg5_calc_score(int alpha,int beta,int i,int j,int depth,bool is_self){
+tree *tree_init(int value,int i,int j){
+    tree *ans=(tree *)malloc(sizeof(tree));
+    ans->value=value;
+    ans->i=i;
+    ans->j=j;
+    ans->searched=false;
+    memset(ans->son,0,sizeof(ans->son));
+    return ans;
+}
+
+void tree_free(tree **nodeptr){
+    if((*nodeptr)->searched){
+        for(int k=0;k<MAX_WIDTH&&(*nodeptr)->son[k];k++)
+            tree_free(&((*nodeptr)->son[k]));
+    }
+    free(*nodeptr);
+    (*nodeptr)=NULL;
+}
+
+int fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self){
     bool whom=!(is_self^fg5_self);
-    if(win_or_not(i,j,whom)){
+    if(win_or_not(node->i,node->j,whom)){
         return is_self?1000000000:-1000000000;
     }
-    int rem=board[i][j];
-    board[i][j]=whom+2;
-    fg4_refresh_value(fg5_value,i,j);
+    int rem=board[node->i][node->j];
+    board[node->i][node->j]=whom+2;
+    fg4_refresh_value(fg5_value,node->i,node->j);
 
-    int i_new=i,j_new=j;
-    int score=minmax(alpha,beta,&i_new,&j_new,depth-1,!is_self);
+    //int i_new=node->i,j_new=node->j;
+    //int score=fg6_minmax(alpha,beta,&i_new,&j_new,depth-1,!is_self);
+    int score=fg6_minmax(alpha,beta,node,depth-1,!is_self);
 
-    board[i][j]=rem;
-    fg4_refresh_value(fg5_value,i,j);
+    board[node->i][node->j]=rem;
+    fg4_refresh_value(fg5_value,node->i,node->j);
     return score;
 }
 
-int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
-    //动态调节搜索宽度
+void fg6_search_tops(bool whom,tree *node){
+    if(!node->searched){
+        for(int k=0;k<MAX_WIDTH;k++){
+            node->son[k]=(tree *)malloc(sizeof(tree));
+            memset(node->son[k],0,sizeof(tree));
+        }
+        for(int i=1;i<=15;i++){
+            for(int j=1;j<=15;j++){
+                if(whom?!board[i][j]:(board[i][j]<=0)){
+                    int curr_value=fg5_value[i][j][0];
+                    /*
+                    int curr_i=i;
+                    int curr_j=j;
+                    for(int k=0;k<WIDTH;k++){
+                        if(curr_value>max_[k]){
+                            swap(i_+k,&curr_i);
+                            swap(j_+k,&curr_j);
+                            swap(max_+k,&curr_value);
+                        }
+                    }*/
+                    if(curr_value>node->son[MAX_WIDTH-1]->value){
+                        int k=MAX_WIDTH-2;
+                        for(;k>=0;k--){
+                            if(curr_value>node->son[k]->value){
+                                node->son[k+1]->value=node->son[k]->value;
+                                node->son[k+1]->i=node->son[k]->i;
+                                node->son[k+1]->j=node->son[k]->j;
+                            }else break;
+                        }
+                        node->son[k+1]->value=curr_value;
+                        node->son[k+1]->i=i;
+                        node->son[k+1]->j=j;
+                    }
+                }
+            }
+        }
+        node->searched=true;
+    }
+}
+
+int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     switch(WIDTH){
     case 6:
         if((double)(clock()-start)/CLOCKS_PER_SEC>14){
@@ -41,7 +115,7 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
         }
         break;
     }
-    //底层判断
+    //DONE: adapt the deepest layer
     if(!depth){
         me_max=thee_max=0;
         for(int i=1;i<=15;i++){
@@ -53,8 +127,8 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
                 }else{
                     //if(fg5_value[i][j][10-!fg5_self]) printf("%d\n",fg5_value[i][j][10-!fg5_self]);
                     if((fg5_self||!board[i][j])&&thee_max<=fg5_value[i][j][10-!fg5_self]){
-                        *x0=i;
-                        *y0=j;
+                        //*x0=i;
+                        //*y0=j;
                         thee_max=fg5_value[i][j][10-!fg5_self];
                     }
                 }
@@ -71,86 +145,59 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
         }
         return me_max-thee_max;
     }
-    //选取估值最大的MAX_WIDTH个点
-    bool whom=!(is_self^fg5_self);
-    int max_[MAX_WIDTH];
-    int i_[MAX_WIDTH];
-    int j_[MAX_WIDTH];
-    int x_[MAX_WIDTH];
-    int y_[MAX_WIDTH];
-    int score_[MAX_WIDTH];
-    memset(max_,0,sizeof(max_));
-    memset(i_,0,sizeof(i_));
-    memset(j_,0,sizeof(j_));
-    memset(x_,0,sizeof(x_));
-    memset(y_,0,sizeof(y_));
-    memset(score_,0,sizeof(score_));
-    for(int i=1;i<=15;i++){
-        for(int j=1;j<=15;j++){
-            if(whom?!board[i][j]:(board[i][j]<=0)){
-                int curr_value=fg5_value[i][j][0];
-                /*
-                int curr_i=i;
-                int curr_j=j;
-                for(int k=0;k<WIDTH;k++){
-                    if(curr_value>max_[k]){
-                        swap(i_+k,&curr_i);
-                        swap(j_+k,&curr_j);
-                        swap(max_+k,&curr_value);
-                    }
-                }*/
-                if(curr_value>max_[MAX_WIDTH-1]){
-                    int k=MAX_WIDTH-2;
-                    for(;k>=0;k--){
-                        if(curr_value>max_[k]){
-                            max_[k+1]=max_[k];
-                            i_[k+1]=i_[k];
-                            j_[k+1]=j_[k];
-                        }else break;
-                    }
-                    max_[k+1]=curr_value;
-                    i_[k+1]=i;
-                    j_[k+1]=j;
-                }
-            }
-        }
-    }
-    //进行深搜
+
+
+    fg6_search_tops(!(is_self^fg5_self),node);
+
+
     int EXM=is_self?-1000000000:1000000000,K=0;
     for(int k=0;k<WIDTH;k++){
-        if(i_[k]&&j_[k]){
-            score_[k]=fg5_calc_score(alpha,beta,i_[k],j_[k],depth,is_self);
+        if(node->son[k]->i&&node->son[k]->j){
+            node->son[k]->value=
+                fg6_calc_score(alpha,beta,node->son[k],depth,is_self);
             if(is_self){
-                if(score_[k]>EXM){
-                    EXM=score_[k];
-                    K=k;
+                if(node->son[k]->value>EXM){
+                    EXM=node->son[k]->value;
+                    if(depth==DEPTH) K=k;
                 }
 #ifdef __linux__
-                alpha=my_max(alpha,EXM);
+                alpha = my_max(alpha, EXM);
 #else
-                alpha=max(alpha,EXM);
+                alpha = max(alpha, EXM);
 #endif
             }else{
-                if(score_[k]<EXM){
-                    EXM=score_[k];
-                    K=k;
+                if(node->son[k]->value<EXM){
+                    EXM=node->son[k]->value;
+                    if(depth==DEPTH) K=k;
                 }
 #ifdef __linux__
-                beta=my_min(beta,EXM);
+                beta = my_min(beta, EXM);
 #else
-                beta=min(beta,EXM);
+                beta = min(beta, EXM);
 #endif
             }
-            if(depth==DEPTH) printf("%c%d %d %d\n",j_[k]+'A'-1,i_[k],score_[k],fg5_value[i_[k]][j_[k]][0]);
+            if(depth==DEPTH){
+                printf("%c%d %d %d\n",node->son[k]->j+'A'-1,node->son[k]->i,node->son[k]->value,
+                    fg5_value[node->son[k]->i][node->son[k]->j][0]);
+            }
             if(beta<=alpha) break;
         }
     }
-    *x0=i_[K];
-    *y0=j_[K];
-    return score_[K];
+    if(depth==DEPTH){
+        x=fg6_tree->son[K]->i;
+        y=fg6_tree->son[K]->j;
+    }
+    return EXM;//fg6_tree->son[K]->value;
 }
 
-void fg5(){
+void fg6_calc(int depth){
+    fg6_tree=tree_choose(fg6_tree,fg5_x_self,fg5_y_self);
+    fg6_tree=tree_choose(fg6_tree,last_x,last_y);
+    if(fg6_minmax(-1000000000,+1000000000,fg6_tree,DEPTH,true)==1000000000)
+        printf("嘿嘿，你要输啦！（￣︶￣）↗　\n");
+}
+
+void fg6(){
     fg5_self=step&1;
     x=y=0;
     if(step<=2){
@@ -170,10 +217,10 @@ void fg5(){
             WIDTH=IDEAL_WIDTH;
             DEPTH=IDEAL_DEPTH;
         }
-        if(minmax(-1000000000,+1000000000,&x,&y,DEPTH,true)==1000000000) printf("嘿嘿，你要输啦！（￣︶￣）↗　\n");
+        fg6_calc(DEPTH);
         end=clock();
         printf("计算结束，用时%f\n",(double)(end-start)/CLOCKS_PER_SEC);
-        if(!x||!y){//使用fg4
+        /*if(!x||!y){//使用fg4
             printf("可以认输吗QAQ\n");
             int max=-1;
             if(!(step&1)){
@@ -252,22 +299,26 @@ void fg5(){
                     y=j;
                 }
             }
-        }
+        }*/
     }
     fg5_x_self=x;
     fg5_y_self=y;
 }
 
-void nt5(){
+void nt6(){
     memset(fg5_value,0,sizeof(fg5_value));
     lianzhu_calc_init();
+    fg6_tree=(tree *)malloc(sizeof(tree));
+    memset(fg6_tree,0,sizeof(tree));
 }
 
-void re5(bool is_black){
+void re6(bool is_black){
     for(int j=7-err;j>0;j--){
         int tmp_x=timeline[step+j].x;
         int tmp_y=timeline[step+j].y;
         fg4_refresh_value(fg5_value,tmp_x,tmp_y);
     }
+    tree_free(&fg6_tree);
+    fg6_tree=(tree *)malloc(sizeof(tree));
+    memset(fg6_tree,0,sizeof(tree));
 }
-

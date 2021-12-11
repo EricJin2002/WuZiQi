@@ -104,9 +104,9 @@ int fg5_x_self,fg5_y_self;
 #define MAX_WIDTH 8
 #define BEGIN_STEP 6
 #define BEGIN_WIDTH 8
-#define BEGIN_DEPTH 9//7
+#define BEGIN_DEPTH 11//7
 #define IDEAL_WIDTH 8//6
-#define IDEAL_DEPTH 9 //odd recommended
+#define IDEAL_DEPTH 11 //odd recommended
 
 int WIDTH;
 int DEPTH;
@@ -141,5 +141,27 @@ void fg5();
 void nt5();
 void re5(bool is_black);
 
+
+//robot6.c
+
+typedef struct tree{
+    int value;
+    int i;
+    int j;
+    bool searched;
+    struct tree* son[MAX_WIDTH];
+} tree;
+tree *fg6_tree;
+
+tree *tree_choose(tree *node,int i,int j);
+tree *tree_init(int value,int i,int j);
+void tree_free(tree **nodeptr);
+int fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self);
+void fg6_search_tops(bool whom,tree *node);
+int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self);
+void fg6_calc(int depth);
+void fg6();
+void nt6();
+void re6(bool is_black);
 
 #endif

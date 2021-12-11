@@ -65,7 +65,9 @@ void print_char(int i,int j){//https://zh.wikipedia.org/wiki/%E6%96%B9%E6%A1%86%
         }else{
             printf(j==1?"├":j==15?"┤":"┼");
         }
-        //if (j != 15) printf(" ");//若使用新版控制台，取消注释这一行
+#ifndef __linux__
+        if (j != 15) printf(" ");//若使用新版控制台，取消注释这一行
+#endif
     }else if(board[i][j]==-2){
         printf("×");
     }else if(board[i][j]%2){//black
@@ -347,12 +349,12 @@ int main(){
     white_robot.re=re12;
     white_robot.nt=nt12;
 */
-    black_robot.fg=fg5;
-    black_robot.re=re5;
-    black_robot.nt=nt5;
-    white_robot.fg=fg5;
-    white_robot.re=re5;
-    white_robot.nt=nt5;
+    black_robot.fg=fg6;
+    black_robot.re=re6;
+    black_robot.nt=nt6;
+    white_robot.fg=fg6;
+    white_robot.re=re6;
+    white_robot.nt=nt6;
     choose_player();
     initialize();
     while(++step){
