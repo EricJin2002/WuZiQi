@@ -1,10 +1,4 @@
-#pragma once
 #include "wuziqi.h"
-#include "lianzhu2.h"
-
-//第三维度0位存总评分，1-4位存黑棋评分，5-8存白棋评分，9存黑棋总分，10存白棋总分
-int fg4_value[16][16][11];
-int fg4_x_self,fg4_y_self;
 
 int fg4_calc_value(int x0,int y0,bool color,int dir_4){
 

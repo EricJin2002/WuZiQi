@@ -1,50 +1,11 @@
-#pragma once 
 #include "wuziqi.h"
-#include "robot4.h"
-#include "lianzhu2.h"
-
-bool fg5_self;
-int fg5_value[16][16][11];
-int fg5_x_self,fg5_y_self;
-
-#define MAX_WIDTH 7
-#define BEGIN_STEP 6
-#define BEGIN_WIDTH 8
-#define BEGIN_DEPTH 9//7
-#define IDEAL_WIDTH 8//6
-#define IDEAL_DEPTH 9 //odd recommended
-
-int WIDTH=IDEAL_WIDTH;
-int DEPTH=IDEAL_DEPTH;
-/*
-int my_min(int a,int b){
-    return a<b?a:b;
-}
-int my_max(int a,int b){
-    return a<b?b:a;
-}*/
-
-#define my_min(a, b)	\
-({                      \
-	typeof(a) _a = (a);	\
-	typeof(b) _b = (b);	\
-	_a <= _b ? _a : _b;	\
-})
-#define my_max(a, b)	\
-({                      \
-	typeof(a) _a = (a);	\
-	typeof(b) _b = (b);	\
-	_a >= _b ? _a : _b;	\
-})
 
 void swap(int *a,int *b){
     int t=*a;
     *a=*b;
     *b=t;
 }
-int me_max=0;
-int thee_max=0;
-int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self);
+
 int fg5_calc_score(int alpha,int beta,int *x0,int *y0,int i,int j,int depth,bool is_self){
     int score=(is_self?-1000000000:1000000000);
     bool whom=!(is_self^fg5_self);
@@ -122,12 +83,12 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
         return me_max-thee_max;
     }
     bool whom=!(is_self^fg5_self);
-    int max_[MAX_WIDTH+1];
-    int i_[MAX_WIDTH+1];
-    int j_[MAX_WIDTH+1];
-    int x_[MAX_WIDTH+1];
-    int y_[MAX_WIDTH+1];
-    int score_[MAX_WIDTH+1];
+    int max_[MAX_WIDTH];
+    int i_[MAX_WIDTH];
+    int j_[MAX_WIDTH];
+    int x_[MAX_WIDTH];
+    int y_[MAX_WIDTH];
+    int score_[MAX_WIDTH];
     memset(max_,0,sizeof(max_));
     memset(i_,0,sizeof(i_));
     memset(j_,0,sizeof(j_));
@@ -148,8 +109,8 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
                         swap(max_+k,&curr_value);
                     }
                 }*/
-                if(curr_value>max_[WIDTH-1]){
-                    int k=WIDTH-2;
+                if(curr_value>max_[MAX_WIDTH-1]){
+                    int k=MAX_WIDTH-2;
                     for(;k>=0;k--){
                         if(curr_value>max_[k]){
                             max_[k+1]=max_[k];
@@ -185,7 +146,7 @@ int minmax(int alpha,int beta,int *x0,int *y0,int depth,bool is_self){
             if(beta<=alpha) break;
         }
     }
-    *x0=x_[K];
+    *x0=x_[K];//Why not i_[k]? seems all right
     *y0=y_[K];
     return score_[K];
 }

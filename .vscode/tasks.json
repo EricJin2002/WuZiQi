@@ -6,7 +6,8 @@
             "command": "/usr/bin/gcc",
             "args": [
                 "-g",
-                "${file}",
+                //"${file}",
+                "${fileDirname}/*.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lm",

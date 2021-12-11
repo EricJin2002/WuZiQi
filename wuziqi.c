@@ -1,9 +1,4 @@
 #include "wuziqi.h"
-#include "lianzhu2.h"
-//#include "robot12.h"
-//#include "robot3.h"
-#include "robot4.h"
-#include "robot5.h"
 
 bool win_or_not(int x0,int y0,bool whom){
     int i=1,j=1;
