@@ -3,14 +3,17 @@
 tree *tree_choose(tree *node,int i,int j){
     tree *ans=NULL;
     for(int k=0;k<MAX_WIDTH&&node->son[k];k++){
-        if(node->son[k]->i==node->i&&node->son[k]->j==node->j){
+        if(node->son[k]->i==i&&node->son[k]->j==j){
             ans=node->son[k];
             k++;
+            printf("预料之内(～￣▽￣)～\n");
             for(;k<MAX_WIDTH&&node->son[k];k++){
                 tree_free(&node->son[k]);
             }
+            break;
         }else{
             tree_free(&node->son[k]);
+            printf("意料之外(°Д°)\n");
         }
     }
     free(node);
@@ -101,7 +104,7 @@ void fg6_search_tops(bool whom,tree *node){
 int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     switch(WIDTH){
     case 6:
-        if((double)(clock()-start)/CLOCKS_PER_SEC>14){
+        if((double)(clock()-start)/CLOCKS_PER_SEC>13){
             printf("头秃￣へ￣\n");
             WIDTH=5;
         }
@@ -109,7 +112,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     case 5:
         break;
     default:
-        if((double)(clock()-start)/CLOCKS_PER_SEC>10){
+        if((double)(clock()-start)/CLOCKS_PER_SEC>8){
             printf("你好厉害￣へ￣\n");
             WIDTH=6;
         }
