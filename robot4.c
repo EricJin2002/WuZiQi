@@ -3,8 +3,8 @@
 int fg4_calc_value(int x0,int y0,bool color,int dir_4){
 
     int rem=board[x0][y0];
-    board[x0][y0]=2+color;
-    if(ban_black) lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4);
+    board[x0][y0]=color;
+    //if(ban_black) lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4);
 
     int score;
     switch (lianzhu_calc(x0,y0,color,dir_4,ban_black)){
@@ -24,7 +24,7 @@ int fg4_calc_value(int x0,int y0,bool color,int dir_4){
     }
 
     board[x0][y0]=rem;
-    if(ban_black) lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4); 
+    //if(ban_black) lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4); 
 
     return score;
 }
@@ -52,29 +52,20 @@ void fg4_refresh_value(int (*value)[16][11],int x0,int y0){
         for(int k=1;k<=5;k++){
             x1=x0+k*dx;
             y1=y0+k*dy;
-            if(x1>=1&&x1<=15&&y1>=1&&y1<=15){
+            if(board[x1][y1]!=EDGE){
                 dir_4=(dir_8-1)%4+1;
-                value[x1][y1][10-black]-=value[x1][y1][dir_4+4*black];
-                value[x1][y1][10-white]-=value[x1][y1][dir_4+4*white];
-                value[x1][y1][dir_4+4*black]=fg4_calc_value(x1,y1,black,dir_4);
-                value[x1][y1][dir_4+4*white]=fg4_calc_value(x1,y1,white,dir_4);
-                value[x1][y1][10-black]+=value[x1][y1][dir_4+4*black];
-                value[x1][y1][10-white]+=value[x1][y1][dir_4+4*white];
-                value[x1][y1][0]=value[x1][y1][10-white]+
-                    (ban_black&&board[x1][y1]<0?0:value[x1][y1][10-black]);
+                value[x1][y1][10-BLACK]-=value[x1][y1][dir_4+4*BLACK];
+                value[x1][y1][10-WHITE]-=value[x1][y1][dir_4+4*WHITE];
+                value[x1][y1][dir_4+4*BLACK]=fg4_calc_value(x1,y1,BLACK,dir_4);
+                value[x1][y1][dir_4+4*WHITE]=fg4_calc_value(x1,y1,WHITE,dir_4);
+                value[x1][y1][10-BLACK]+=value[x1][y1][dir_4+4*BLACK];
+                value[x1][y1][10-WHITE]+=value[x1][y1][dir_4+4*WHITE];
+                value[x1][y1][0]=value[x1][y1][10-WHITE]+
+                    ((ban_black&&board[x1][y1]==BAN)?0:value[x1][y1][10-BLACK]);
             }else{
                 break;
             }
         }
-    }
-}
-
-void fg4_debug(int (*value)[16][11]){
-    for(int i=1;i<=15;i++){
-        for(int j=1;j<=15;j++){
-            printf("%5d",value[16-i][j][0]);
-        }
-        printf("\n\n");
     }
 }
 
@@ -89,19 +80,19 @@ void fg4(){
         if(!(step&1)){
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(board[i][j]<=0&&fg4_value[i][j][0]>=max){
-                        if(max==fg4_value[i][j][0]&&rand()%4){
-                            continue;
-                        }
+                    if(board[i][j]<0&&fg4_value[i][j][0]>=max){
+                        //if(max==fg4_value[i][j][0]&&rand()%4){
+                        //    continue;
+                        //}
                         x=i;
                         y=j;
                         max=fg4_value[i][j][0];
                     }
                 }
-            }
+            }/*
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(!board[i][j]&&win_or_not(i,j,!(step&1))){
+                    if(board[i][j]==EMPTY&&win_or_not(i,j,!(step&1))){
                         x=i;
                         y=j;
                     }
@@ -109,28 +100,28 @@ void fg4(){
             }
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(board[i][j]<=0&&win_or_not(i,j,step&1)){
+                    if(board[i][j]<0&&win_or_not(i,j,step&1)){
                         x=i;
                         y=j;
                     }
                 }
-            }
+            }*/
         }else{
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(!board[i][j]&&fg4_value[i][j][0]>=max){
-                        if(max==fg4_value[i][j][0]&&rand()%4){
-                            continue;
-                        }
+                    if(board[i][j]==EMPTY&&fg4_value[i][j][0]>=max){
+                        //if(max==fg4_value[i][j][0]&&rand()%4){
+                        //    continue;
+                        //}
                         x=i;
                         y=j;
                         max=fg4_value[i][j][0];
                     }
                 }
-            }
+            }/*
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(!board[i][j]&&win_or_not(i,j,!(step&1))){
+                    if(board[i][j]==EMPTY&&win_or_not(i,j,!(step&1))){
                         x=i;
                         y=j;
                     }
@@ -138,12 +129,12 @@ void fg4(){
             }
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-                    if(!board[i][j]&&win_or_not(i,j,step&1)){
+                    if(board[i][j]==EMPTY&&win_or_not(i,j,step&1)){
                         x=i;
                         y=j;
                     }
                 }
-            }
+            }*/
         }
     }else{
         x=y=8;
