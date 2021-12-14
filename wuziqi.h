@@ -87,6 +87,7 @@ int fg4_value[16][16][11];
 int fg4_x_self,fg4_y_self;
 
 int fg4_calc_value(int x0,int y0,bool color,int dir_4);
+int fg4_value_map(int pattern);
 void fg4_refresh_value(int (*value)[16][11],int x0,int y0);
 void fg4();
 void nt4();
