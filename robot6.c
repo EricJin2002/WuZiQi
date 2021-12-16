@@ -60,6 +60,66 @@ void fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self){
     node->value=score;
 }
 
+bool fg6_ban_lianzhu_find(int *x0,int *y0,int dx,int dy,int *n,bool *blank,int num){
+    while((board[*x0][*y0]==EDGE&&*y0>=1||(*blank=false))&&*n<=4){
+        if(board[*x0][*y0]<0){
+            //为空
+            break;
+        }else if((board[*x0][*y0]&1)!=BLACK){
+            //敌方
+            *blank=false;
+            break;
+        }else{
+            //己方
+            for(int dir_4=1;dir_4<=4;dir_4++){
+                switch(fg6_value[*x0][*y0][dir_4+4*BLACK]){
+                    case 8000:case 7000:
+                    if(num==3) return true;
+                    break;
+                    case 100000:case 10000:
+                    if(num==4) return true;
+                    break;
+                    default:break;
+                }
+            }
+        }
+        *x0+=dx;
+        *y0+=dy;
+        (*n)++;
+    }
+    return false;
+}
+
+bool fg6_judge_complex_ban(int x0,int y0,int dir,int num){
+    int dx=0,dy=0;
+    switch (dir){
+    case 1:dx=dy=1;break;
+    case 2:dx=1;break;
+    case 3:dx=1;dy=-1;break;
+    case 4:dy=-1;break;
+    default:break;
+    }
+    int i=1,j=1;
+    int i_x=x0+dx,i_y=y0+dy;
+    int j_x=x0-dx,j_y=y0-dy;
+    bool i_blank=true;
+    bool j_blank=true;
+    if(fg6_ban_lianzhu_find(&i_x,&i_y,dx,dy,&i,&i_blank,num)) return true;
+    if(fg6_ban_lianzhu_find(&j_x,&j_y,-dx,-dy,&j,&j_blank,num)) return true;
+    int ii_x=i_x+dx,ii_y=i_y+dy,ii=i+1;
+    bool ii_blank=i_blank;
+    int jj_x=j_x-dx,jj_y=j_y-dy,jj=j+1;
+    bool jj_blank=j_blank;
+    if(i_blank){
+        if(fg6_ban_lianzhu_find(&ii_x,&ii_y,dx,dy,&ii,&ii_blank,num)) return true;
+    }
+    if(j_blank){
+        if(fg6_ban_lianzhu_find(&jj_x,&jj_y,-dx,-dy,&jj,&jj_blank,num)) return true;
+    }
+    return false;
+}
+
+
 void fg6_search_tops(bool banned,tree *node){
     for(int k=0;k<MAX_WIDTH;k++){
         node->son[k]=(tree *)malloc(sizeof(tree));
@@ -70,6 +130,41 @@ void fg6_search_tops(bool banned,tree *node){
             if(banned?board[i][j]==EMPTY:(board[i][j]<0)){
                 int curr_value=fg6_value[i][j][0];
                 if(curr_value>node->son[MAX_WIDTH-1]->value){
+
+                    //也许还有bug
+                    if(banned){
+                        bool cnt=false;
+                        bool force_ncnt=false;
+                        for(int dir_4=1;dir_4<=4;dir_4++){
+                            int type=fg4_calc_value(i,j,BLACK,dir_4);
+                            switch(type){
+                            case 8000:case 7000:
+                                if(fg6_judge_complex_ban(i,j,dir_4,3)){
+                                    //printf("奇怪的禁手增加了\n");
+                                    //getchar();
+                                    cnt=true;
+                                }
+                                break;
+                            case 100000:case 10000:
+                                if(fg6_judge_complex_ban(i,j,dir_4,4)){
+                                    //printf("奇怪的禁手增加了\n");
+                                    //getchar();
+                                    cnt=true;
+                                }
+                                break;
+                            case 5000000:
+                                force_ncnt=true;
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+                        if(!force_ncnt&&cnt){
+                            continue;
+                        }
+                    }
+                    
+
                     int k=MAX_WIDTH-2;
                     for(;k>=0;k--){
                         if(curr_value>node->son[k]->value){
@@ -90,18 +185,18 @@ void fg6_search_tops(bool banned,tree *node){
 
 int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     switch(WIDTH){
-    case 7:
+    case 10:
         if((double)(clock()-start)/CLOCKS_PER_SEC>13){
             printf("头秃(￣へ￣)\n");
-            WIDTH=5;
+            WIDTH=8;
         }
         break;
-    case 5:
+    case 8:
         break;
     default:
         if((double)(clock()-start)/CLOCKS_PER_SEC>9){
             printf("你好厉害(￣へ￣)\n");
-            WIDTH=7;
+            WIDTH=10;
         }
         break;
     }

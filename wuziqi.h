@@ -1,6 +1,6 @@
 #ifndef __WUZIQI_H__
 #define __WUZIQI_H__
-
+#pragma comment(linker, "/STACK:102400000,102400000")
 #include "opt.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,12 +100,12 @@ bool fg6_self;
 int fg6_value[16][16][11];
 int fg6_x_self,fg6_y_self;
 
-#define MAX_WIDTH 8
+#define MAX_WIDTH 12
 #define BEGIN_STEP 8
-#define BEGIN_WIDTH 8
-#define BEGIN_DEPTH 13//7
-#define IDEAL_WIDTH 8//6
-#define IDEAL_DEPTH 13 //odd recommended
+#define BEGIN_WIDTH 12
+#define BEGIN_DEPTH 11//7
+#define IDEAL_WIDTH 12//6
+#define IDEAL_DEPTH 11 //odd recommended
 
 int WIDTH;
 int DEPTH;
