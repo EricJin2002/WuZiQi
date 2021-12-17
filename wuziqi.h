@@ -49,18 +49,18 @@ clock_t start,end;
 
 //lianzhu2.c
 
-#define CHANG_LIAN -6
-#define CHENG_5 -5
-#define HUO_4 4
-#define CHONG_4 104
-#define SI_4 40
-//#define _3_4 34
-#define _4_4 44
-#define HUO_3 3
-#define TIAO_HUO_3 103
-#define MIAN_3 30
-#define HUO_2 2
-#define MIAN_2 20
+#define TYPES_TOT 11
+#define CHANG_LIAN 10
+#define CHENG_5 9
+#define HUO_4 8
+#define CHONG_4 7
+#define SI_4 6
+#define _4_4 5
+#define HUO_3 4
+#define TIAO_HUO_3 3
+#define MIAN_3 2
+#define HUO_2 1
+#define MIAN_2 0
 
 #define WHITE 0b00
 #define BLACK 0b01
@@ -85,9 +85,11 @@ void lianzhu_refresh_ban_near(int x0,int y0);
 //第三维度0位存总评分，1-4位存黑棋评分，5-8存白棋评分，9存黑棋总分，10存白棋总分
 int fg4_value[16][16][11];
 int fg4_x_self,fg4_y_self;
+int fg4_value_map[TYPES_TOT];
 
+void fg4_value_map_init();
+//int fg4_value_map(int pattern);
 int fg4_calc_value(int x0,int y0,bool color,int dir_4);
-int fg4_value_map(int pattern);
 void fg4_refresh_value(int (*value)[16][11],int x0,int y0);
 void fg4();
 void nt4();
@@ -100,11 +102,11 @@ bool fg6_self;
 int fg6_value[16][16][11];
 int fg6_x_self,fg6_y_self;
 
-#define MAX_WIDTH 12
+#define MAX_WIDTH 13
 #define BEGIN_STEP 8
-#define BEGIN_WIDTH 12
+#define BEGIN_WIDTH 13
 #define BEGIN_DEPTH 11//7
-#define IDEAL_WIDTH 12//6
+#define IDEAL_WIDTH 13//6
 #define IDEAL_DEPTH 11 //odd recommended
 
 int WIDTH;

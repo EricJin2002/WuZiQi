@@ -51,7 +51,7 @@ void choose_player(){
 void initialize(){
     srand((unsigned)time(NULL));
     memset(board_expanded,EMPTY,sizeof(board_expanded));
-    board=(int(*)[23])(board_expanded[4]+3);
+    board=(int(*)[23])(board_expanded[3]+3);//BUG FIXED AT 211217
     for(int i=0;i<=22;i++){
         for(int j=0;j<=22;j++){
             if(i<4||i>18||j<4||j>18){
