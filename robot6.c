@@ -194,7 +194,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     case 8:
         break;
     default:
-        if((double)(clock()-start)/CLOCKS_PER_SEC>9){
+        if((double)(clock()-start)/CLOCKS_PER_SEC>10){
             printf("你好厉害(￣へ￣)\n");
             WIDTH=10;
         }
@@ -246,7 +246,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
             }
         }
 
-        return fg6_self==BLACK?me_max-thee_max:me_max-2*thee_max;
+        return fg6_self==charge?2*me_max-thee_max:me_max-2*thee_max;
     }
 
     if(!node->searched) fg6_search_tops(!(is_self^fg6_self),node);
@@ -295,17 +295,22 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
 }
 
 void fg6_calc(int depth){
+    if(charge) printf("进攻！！\n");
+    else printf("防御！！\n");
     fg6_tree=tree_choose(fg6_tree,fg6_x_self,fg6_y_self);
     fg6_tree=tree_choose(fg6_tree,last_x,last_y);
     int points=fg6_minmax(-1000000000,+1000000000,fg6_tree,DEPTH,true);
     if(points==1000000000) printf("嘿嘿，你要输啦！（￣︶￣）↗　\n");
     else if(points==-1000000000) printf("可以认输吗QAQ\n");
+    if(!charge&&points>0) charge=1;
+    else if(charge&&points<0) charge=0;
 }
 
 void fg6(){
     fg6_self=step&1;
     x=y=0;
     if(step<=2){
+        charge=fg6_self;//TODO
         x=8;
         y=9-step;
     }else{
@@ -325,42 +330,26 @@ void fg6(){
         fg6_calc(DEPTH);
         end=clock();
         printf("计算结束，用时%f\n",(double)(end-start)/CLOCKS_PER_SEC);
-        /*if(!x||!y){//使用fg4（这样不好，因为对手长连不算输）
+        if(!x||!y){//使用fg4
             printf("可以认输吗QAQ\n");
             int max=-1;
             if(!(step&1)){
                 for(int i=1;i<=15;i++){
                     for(int j=1;j<=15;j++){
-                        if(board[i][j]<=0&&fg6_value[i][j][0]>=max){
+                        if(board[i][j]<0&&fg6_value[i][j][0]>=max){
                             if(max==fg6_value[i][j][0]&&rand()%4){
                                 continue;
                             }
                             x=i;
                             y=j;
                             max=fg6_value[i][j][0];
-                        }
-                    }
-                }
-                for(int i=1;i<=15;i++){
-                    for(int j=1;j<=15;j++){
-                        if(!board[i][j]&&win_or_not(i,j,!(step&1))){
-                            x=i;
-                            y=j;
-                        }
-                    }
-                }
-                for(int i=1;i<=15;i++){
-                    for(int j=1;j<=15;j++){
-                        if(board[i][j]<=0&&win_or_not(i,j,step&1)){
-                            x=i;
-                            y=j;
                         }
                     }
                 }
             }else{
                 for(int i=1;i<=15;i++){
                     for(int j=1;j<=15;j++){
-                        if(!board[i][j]&&fg6_value[i][j][0]>=max){
+                        if(board[i][j]==EMPTY&&fg6_value[i][j][0]>=max){
                             if(max==fg6_value[i][j][0]&&rand()%4){
                                 continue;
                             }
@@ -370,25 +359,9 @@ void fg6(){
                         }
                     }
                 }
-                for(int i=1;i<=15;i++){
-                    for(int j=1;j<=15;j++){
-                        if(!board[i][j]&&win_or_not(i,j,!(step&1))){
-                            x=i;
-                            y=j;
-                        }
-                    }
-                }
-                for(int i=1;i<=15;i++){
-                    for(int j=1;j<=15;j++){
-                        if(!board[i][j]&&win_or_not(i,j,step&1)){
-                            x=i;
-                            y=j;
-                        }
-                    }
-                }
             }
         }
-        //防止憨憨的机器干傻事
+        /*//防止憨憨的机器干傻事（这样不好，因为对手长连不算输）
         for(int i=1;i<=15;i++){
             for(int j=1;j<=15;j++){
                 if(!board[i][j]&&win_or_not(i,j,!(step&1))){

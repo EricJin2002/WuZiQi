@@ -102,11 +102,11 @@ bool fg6_self;
 int fg6_value[16][16][11];
 int fg6_x_self,fg6_y_self;
 
-#define MAX_WIDTH 13
+#define MAX_WIDTH 12
 #define BEGIN_STEP 8
-#define BEGIN_WIDTH 13
+#define BEGIN_WIDTH 12
 #define BEGIN_DEPTH 11//7
-#define IDEAL_WIDTH 13//6
+#define IDEAL_WIDTH 12//6
 #define IDEAL_DEPTH 11 //odd recommended
 
 int WIDTH;
@@ -147,5 +147,7 @@ void fg6_calc(int depth);
 void fg6();
 void nt6();
 void re6(bool is_black);
+
+bool charge;
 
 #endif

@@ -278,6 +278,7 @@ int main(){
     while(++step){
         if(ban_black) lianzhu_refresh_ban();
         clear();
+        printf("×÷Õß£ºEric Jin\n");
         print_board();
         if(!print_err()) break;
         if(!(get_input()&&judge_input())) continue;
