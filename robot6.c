@@ -184,7 +184,7 @@ void fg6_search_tops(bool banned,tree *node){
 }
 
 int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
-    /*switch(WIDTH){
+    switch(WIDTH){
     case 10:
         if((double)(clock()-start)/CLOCKS_PER_SEC>13){
             printf("头秃(￣へ￣)\n");
@@ -199,14 +199,19 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
             WIDTH=10;
         }
         break;
-    }*/
+    }
     //DONE: adapt the deepest layer
     if(!depth){
         //也许还有bug
-        me_max=thee_max=0;
+        //me_max=thee_max=0;
+
+        int deepest_value=0;
+
         if(!is_self){
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
+
+                    /*
                     if(board[i][j]>=0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
                         if(board[i][j]==fg6_self){
                             if(me_max<=fg6_value[i][j][10-fg6_self]) me_max=fg6_value[i][j][10-fg6_self];
@@ -218,19 +223,20 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
                             //*y0=j;
                             thee_max=fg6_value[i][j][10-!fg6_self];
                         }
-                    }
-                    /*
-                    if(board[i][j]>0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
-                        if((board[i][j]&1)==fg6_self){
-                            if(me_max<=fg6_value[i][j][10-fg6_self]) me_max=fg6_value[i][j][10-fg6_self];
-                        }
-                        else{
-                            if(thee_max<=fg6_value[i][j][10-!fg6_self]) thee_max=fg6_value[i][j][10-!fg6_self];
-                        }
                     }*/
+
+                    if(board[i][j]==EMPTY){
+                        deepest_value-=fg6_value[i][j][10-!fg6_self];
+                    }else if(board[i][j]==fg6_self){
+                        deepest_value+=fg6_value[i][j][10-fg6_self];
+                    }
                 }
             }
-        }else{
+        }
+        
+        return deepest_value;
+
+        /*else{
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
                     if(board[i][j]>=0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
@@ -246,7 +252,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
             }
         }
 
-        return fg6_self==charge?2*me_max-thee_max:me_max-2*thee_max;
+        return fg6_self==charge?me_max-thee_max:me_max-2*thee_max;*/
     }
 
     if(!node->searched) fg6_search_tops(!(is_self^fg6_self),node);

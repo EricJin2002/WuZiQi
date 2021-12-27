@@ -171,8 +171,9 @@ void fg4_refresh_value(int (*value)[16][11],int x0,int y0){
                     value[x1][y1][dir_4+4*BLACK]=fg4_value_map[lianzhu_calc_map[pattern_neg_black&((-1)^(0b11<<8))|(BLACK<<8)][false/*ban_black&&BLACK*/][BLACK]];
                     value[x1][y1][10-WHITE]+=value[x1][y1][dir_4+4*WHITE];
                     value[x1][y1][10-BLACK]+=value[x1][y1][dir_4+4*BLACK];
-                    value[x1][y1][0]=value[x1][y1][10-WHITE]+
-                        ((ban_black&&board[x1][y1]==BAN)?0:value[x1][y1][10-BLACK]);
+                    //value[x1][y1][0]=value[x1][y1][10-WHITE]+
+                    //    ((ban_black&&board[x1][y1]==BAN)?0:value[x1][y1][10-BLACK]);
+                    value[x1][y1][0]=value[x1][y1][10-WHITE]+value[x1][y1][10-BLACK];
                     
                 }else{
                     break;
