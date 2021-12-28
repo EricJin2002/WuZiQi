@@ -1,5 +1,7 @@
 #ifndef __WUZIQI_H__
 #define __WUZIQI_H__
+#define NEW_CMD
+
 #pragma comment(linker, "/STACK:102400000,102400000")
 #include "opt.h"
 #include <stdio.h>

@@ -76,7 +76,9 @@ void print_char(int i,int j){//https://zh.wikipedia.org/wiki/%E6%96%B9%E6%A1%86%
             printf(j==1?"├":j==15?"┤":"┼");
         }
 #ifndef __linux__
+#ifdef NEW_CMD
         if (j != 15) printf(" ");//若使用新版控制台，取消注释这一行
+#endif
 #endif
     }else if(board[i][j]==BAN){
         printf("×");
