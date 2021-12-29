@@ -129,6 +129,7 @@ int DEPTH;
 
 int me_max;
 int thee_max;
+int deepest_value;
 
 typedef struct tree{
     int value;

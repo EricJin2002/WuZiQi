@@ -203,28 +203,29 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     //DONE: adapt the deepest layer
     if(!depth){
         //也许还有bug
-        //me_max=thee_max=0;
-
-        int deepest_value=0;
-
-        if(!is_self){
+        if(fg6_self){
+            me_max=thee_max=0;
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
-
-                    /*
                     if(board[i][j]>=0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
-                        if(board[i][j]==fg6_self){
-                            if(me_max<=fg6_value[i][j][10-fg6_self]) me_max=fg6_value[i][j][10-fg6_self];
+                        if(board[i][j]==BLACK){
+                            if(me_max<=fg6_value[i][j][10-BLACK]) me_max=fg6_value[i][j][10-BLACK];
                         }
                     }else{
                         //if(fg6_value[i][j][10-!fg6_self]) printf("%d\n",fg6_value[i][j][10-!fg6_self]);
-                        if((fg6_self||board[i][j]==EMPTY)&&thee_max<=fg6_value[i][j][10-!fg6_self]){
+                        if(thee_max<=fg6_value[i][j][10-WHITE]){
                             //*x0=i;
                             //*y0=j;
-                            thee_max=fg6_value[i][j][10-!fg6_self];
+                            thee_max=fg6_value[i][j][10-WHITE];
                         }
-                    }*/
-
+                    }
+                }
+            }
+            return fg6_self==charge?me_max-thee_max:me_max-2*thee_max;
+        }else{
+            deepest_value=0;
+            for(int i=1;i<=15;i++){
+                for(int j=1;j<=15;j++){
                     if(board[i][j]==EMPTY){
                         deepest_value-=fg6_value[i][j][10-!fg6_self];
                     }else if(board[i][j]==fg6_self){
@@ -232,27 +233,8 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
                     }
                 }
             }
+            return deepest_value;
         }
-        
-        return deepest_value;
-
-        /*else{
-            for(int i=1;i<=15;i++){
-                for(int j=1;j<=15;j++){
-                    if(board[i][j]>=0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
-                        if(board[i][j]==!fg6_self){
-                            if(me_max<=fg6_value[i][j][10-!fg6_self]) me_max=fg6_value[i][j][10-!fg6_self];
-                        }
-                    }else{
-                        if((!fg6_self||board[i][j]==EMPTY)&&thee_max<=fg6_value[i][j][10-fg6_self]){
-                            thee_max=fg6_value[i][j][10-fg6_self];
-                        }
-                    }
-                }
-            }
-        }
-
-        return fg6_self==charge?me_max-thee_max:me_max-2*thee_max;*/
     }
 
     if(!node->searched) fg6_search_tops(!(is_self^fg6_self),node);
