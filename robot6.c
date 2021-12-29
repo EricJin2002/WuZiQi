@@ -250,7 +250,6 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
             if(is_self){
                 if(node->son[k]->value>EXM){
                     EXM=node->son[k]->value;
-                    if(depth==DEPTH) K=k;
                 }
 #ifdef __linux__
                 alpha = my_max(alpha, EXM);
@@ -260,7 +259,6 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
             }else{
                 if(node->son[k]->value<EXM){
                     EXM=node->son[k]->value;
-                    if(depth==DEPTH) K=k;
                 }
 #ifdef __linux__
                 beta = my_min(beta, EXM);
@@ -268,18 +266,32 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
                 beta = min(beta, EXM);
 #endif
             }
-            if(depth==DEPTH){
-                printf("%c%d %d %d\n",node->son[k]->j+'A'-1,node->son[k]->i,node->son[k]->value,
-                    fg6_value[node->son[k]->i][node->son[k]->j][0]);
-            }
             if(beta<=alpha) break;
         }
     }
-    if(depth==DEPTH){
-        x=fg6_tree->son[K]->i;
-        y=fg6_tree->son[K]->j;
-    }
     return EXM;//fg6_tree->son[K]->value;
+}
+
+int fg6_do_minmax(){
+    if(!fg6_tree->searched) fg6_search_tops(fg6_self,fg6_tree);
+
+    int EXM=-1000000000,K=0;
+    int k=0;
+//#pragma omp parallel for
+    for(k=0;k<WIDTH;k++){
+        if(fg6_tree->son[k]->i&&fg6_tree->son[k]->j){
+            fg6_calc_score(EXM,1000000000,fg6_tree->son[k],DEPTH,true);
+            if(fg6_tree->son[k]->value>EXM){
+                EXM=fg6_tree->son[k]->value;
+                K=k;
+            }
+            printf("%c%d %d %d\n",fg6_tree->son[k]->j+'A'-1,fg6_tree->son[k]->i,fg6_tree->son[k]->value,
+                fg6_value[fg6_tree->son[k]->i][fg6_tree->son[k]->j][0]);
+        }
+    }
+    x=fg6_tree->son[K]->i;
+    y=fg6_tree->son[K]->j;
+    return EXM;
 }
 
 void fg6_calc(int depth){
@@ -287,7 +299,8 @@ void fg6_calc(int depth){
     else printf("·ÀÓù£¡£¡\n");
     fg6_tree=tree_choose(fg6_tree,fg6_x_self,fg6_y_self);
     fg6_tree=tree_choose(fg6_tree,last_x,last_y);
-    int points=fg6_minmax(-1000000000,+1000000000,fg6_tree,DEPTH,true);
+    //int points=fg6_minmax(-1000000000,+1000000000,fg6_tree,DEPTH,true);
+    int points=fg6_do_minmax();
     if(points==1000000000) printf("ºÙºÙ£¬ÄãÒªÊäÀ²£¡£¨£þ¦á£þ£©¨J¡¡\n");
     else if(points==-1000000000) printf("¿ÉÒÔÈÏÊäÂðQAQ\n");
     if(!charge&&points>0) charge=1;
