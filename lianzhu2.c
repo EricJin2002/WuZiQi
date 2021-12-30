@@ -95,9 +95,11 @@ void lianzhu_calc_init(){
     }
 }
 
-int lianzhu_calc(int x0,int y0,bool color,int dir,bool consider_ban){
+int lianzhu_calc(int x0,int y0,bool color,int dir,bool consider_ban,int par_k){
     //int rem=board[x0][y0];
     //board[x0][y0]=color+2;
+
+    int (**boardptr)[23]=((par_k==-1)?&board:&(par_board[par_k]));
 
     int dx=0,dy=0;
     switch (dir){
@@ -112,23 +114,26 @@ int lianzhu_calc(int x0,int y0,bool color,int dir,bool consider_ban){
     int pattern=0;
     for(int i=-4;i<=4;i++,x3+=dx,y3+=dy){
         pattern<<=2;
-        if(board[x3][y3]==EDGE){
+        if((*boardptr)[x3][y3]==EDGE){
             pattern|=(color^1);
             continue;
         }
-        pattern|=(board[x3][y3]&0b11);
+        pattern|=((*boardptr)[x3][y3]&0b11);
     }
     //board[x0][y0]=rem;
     return lianzhu_calc_map[pattern][consider_ban&&color][color];
 }
 
-bool lianzhu_judge_ban(int x0,int y0){
+bool lianzhu_judge_ban(int x0,int y0,int par_k){
+
+    int (*lianzhuptr)[16][16][5]=((par_k==-1)?lianzhu:par_lianzhu[par_k]);
+
     int _3=0;
     int _4=0;
     bool ban=false;
     bool win=false;
     for(int dir_4=1;dir_4<=4;dir_4++){
-        switch (lianzhu[x0][y0][dir_4]){
+        switch ((*lianzhuptr)[x0][y0][dir_4]){
         case CHANG_LIAN: ban=true;break;
         case CHENG_5: win=true;break;
         case HUO_4: _4++;break;
@@ -151,87 +156,12 @@ void lianzhu_refresh_ban(){
     for(int i=1;i<=15;i++){
         for(int j=1;j<=15;j++){
             if(board[i][j]<0){
-                lianzhu[i][j][1]=lianzhu_calc(i,j,BLACK,1,false);
-                lianzhu[i][j][2]=lianzhu_calc(i,j,BLACK,2,false);
-                lianzhu[i][j][3]=lianzhu_calc(i,j,BLACK,3,false);
-                lianzhu[i][j][4]=lianzhu_calc(i,j,BLACK,4,false);
-                board[i][j]=lianzhu_judge_ban(i,j)?BAN:EMPTY;
+                lianzhu[i][j][1]=lianzhu_calc(i,j,BLACK,1,false,-1);
+                lianzhu[i][j][2]=lianzhu_calc(i,j,BLACK,2,false,-1);
+                lianzhu[i][j][3]=lianzhu_calc(i,j,BLACK,3,false,-1);
+                lianzhu[i][j][4]=lianzhu_calc(i,j,BLACK,4,false,-1);
+                board[i][j]=lianzhu_judge_ban(i,j,-1)?BAN:EMPTY;
             }
         }
-    }
-}
-
-void lianzhu_refresh_ban_at_dir_near(int x0,int y0,int dir_4){
-    int dx=0,dy=0;
-    switch (dir_4){
-    case 1:dx=dy=1;break;
-    case 2:dx=1;break;
-    case 3:dx=1;dy=-1;break;
-    case 4:dy=-1;break;
-    default:break;
-    }
-
-    int pattern_pos=0;
-    int x3=x0-dx*4;
-    int y3=y0-dy*4;
-    for(int i=-4;i<=4;i++,x3+=dx,y3+=dy){
-        pattern_pos<<=2;
-        if(board[x3][y3]==EDGE){
-            pattern_pos|=(BLACK^1);
-            continue;
-        }
-        pattern_pos|=(board[x3][y3]&0b11);
-    }
-    int pattern_neg=pattern_pos;
-
-    int x1=x0;
-    int y1=y0;
-    for(int k=1;k<=4;k++){
-        x1+=dx;
-        y1+=dy;
-        if(board[x1][y1]!=EDGE&&board[x1][y1]!=WHITE){
-            pattern_pos<<=2;
-            pattern_pos&=((1<<18)-1);
-            if(board[x1+4*dx][y1+4*dy]==EDGE){
-                pattern_pos|=(BLACK^1);
-            }else{
-                pattern_pos|=(board[x1+4*dx][y1+4*dy]&0b11);
-            }
-            
-            if(board[x1][y1]<0){
-                lianzhu[x1][y1][dir_4]=lianzhu_calc_map[pattern_pos][false][BLACK];
-                board[x1][y1]=lianzhu_judge_ban(x1,y1)?BAN:EMPTY;
-            }
-        }else{
-            break;
-        }
-    }
-
-    x1=x0;
-    y1=y0;
-    for(int k=1;k<=4;k++){
-        x1-=dx;
-        y1-=dy;
-        if(board[x1][y1]!=EDGE&&board[x1][y1]!=WHITE){
-            pattern_neg>>=2;
-            if(board[x1-4*dx][y1-4*dy]==EDGE){
-                pattern_neg|=((BLACK^1)<<16);
-            }else{
-                pattern_neg|=((board[x1-4*dx][y1-4*dy]&0b11)<<16);
-            }
-            
-            if(board[x1][y1]<0){
-                lianzhu[x1][y1][dir_4]=lianzhu_calc_map[pattern_neg][false][BLACK];
-                board[x1][y1]=lianzhu_judge_ban(x1,y1)?BAN:EMPTY;
-            }
-        }else{
-            break;
-        }
-    }
-}
-
-void lianzhu_refresh_ban_near(int x0,int y0){
-    for(int dir_4=1;dir_4<=4;dir_4++){
-        lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4);
     }
 }

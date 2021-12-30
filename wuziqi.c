@@ -1,17 +1,19 @@
 #include "wuziqi.h"
 
-bool win_or_not(int x0,int y0,bool whom){
+bool win_or_not(int x0,int y0,bool whom,int par_k){
+    int (**boardptr)[23]=((par_k==-1)?&board:&(par_board[par_k]));
+
     int i=1,j=1;
-    while(i+j!=6&&(board[x0+i][y0]==whom&&++i||board[x0-j][y0]==whom&&++j));
+    while(i+j!=6&&((*boardptr)[x0+i][y0]==whom&&++i||(*boardptr)[x0-j][y0]==whom&&++j));
     if(i+j==6) return true;
     i=1;j=1;
-    while(i+j!=6&&(board[x0][y0+i]==whom&&++i||board[x0][y0-j]==whom&&++j));
+    while(i+j!=6&&((*boardptr)[x0][y0+i]==whom&&++i||(*boardptr)[x0][y0-j]==whom&&++j));
     if(i+j==6) return true;
     i=1;j=1;
-    while(i+j!=6&&(board[x0+i][y0+i]==whom&&++i||board[x0-j][y0-j]==whom&&++j));
+    while(i+j!=6&&((*boardptr)[x0+i][y0+i]==whom&&++i||(*boardptr)[x0-j][y0-j]==whom&&++j));
     if(i+j==6) return true;
     i=1;j=1;
-    while(i+j!=6&&(board[x0+i][y0-i]==whom&&++i||board[x0-j][y0+j]==whom&&++j));
+    while(i+j!=6&&((*boardptr)[x0+i][y0-i]==whom&&++i||(*boardptr)[x0-j][y0+j]==whom&&++j));
     if(i+j==6) return true;
     return false;
 }
@@ -238,7 +240,7 @@ bool judge_input(){
         step--;
         return false;
     }
-    if(win_or_not(x,y,step&1)) err=8;
+    if(win_or_not(x,y,step&1,-1)) err=8;
     return true;
 }
 

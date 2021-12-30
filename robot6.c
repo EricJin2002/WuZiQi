@@ -2,18 +2,22 @@
 
 tree *tree_choose(tree *node,int i,int j){
     tree *ans=NULL;
-    for(int k=0;k<MAX_WIDTH&&node->son[k];k++){
-        if(node->son[k]->i==i&&node->son[k]->j==j){
-            ans=node->son[k];
-            k++;
-            printf("预料之内(～￣▽￣)～\n");
-            for(;k<MAX_WIDTH&&node->son[k];k++){
+    int k;
+//#pragma omp parallel for
+    for(k=0;k<MAX_WIDTH;k++){
+        if(node->son[k]){
+            if(node->son[k]->i==i&&node->son[k]->j==j){
+                ans=node->son[k];
+                //k++;
+                printf("预料之内(～￣▽￣)～\n");
+                //for(;k<MAX_WIDTH&&node->son[k];k++){
+                //    tree_free(&node->son[k]);
+                //}
+                //break;
+            }else{
                 tree_free(&node->son[k]);
+                printf("意料之外(°Д°)\n");
             }
-            break;
-        }else{
-            tree_free(&node->son[k]);
-            printf("意料之外(°Д°)\n");
         }
     }
     free(node);
@@ -43,20 +47,20 @@ void tree_free(tree **nodeptr){
     (*nodeptr)=NULL;
 }
 
-void fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self){
+void fg6_calc_score(int alpha,int beta,tree *node,int depth,bool is_self,int par_k){
     bool whom=!(is_self^fg6_self);
-    if(win_or_not(node->i,node->j,whom)){
+    if(win_or_not(node->i,node->j,whom,par_k)){
         node->value=is_self?1000000000:-1000000000;
         return;
     }
-    int rem=board[node->i][node->j];
-    board[node->i][node->j]=whom;
-    fg4_refresh_value(fg6_value,node->i,node->j);
+    int rem=par_board[par_k][node->i][node->j];
+    par_board[par_k][node->i][node->j]=whom;
+    fg4_refresh_value(node->i,node->j,par_k);
 
-    int score=fg6_minmax(alpha,beta,node,depth-1,!is_self);
+    int score=fg6_minmax(alpha,beta,node,depth-1,!is_self,par_k);
 
-    board[node->i][node->j]=rem;
-    fg4_refresh_value(fg6_value,node->i,node->j);
+    par_board[par_k][node->i][node->j]=rem;
+    fg4_refresh_value(node->i,node->j,par_k);
     node->value=score;
 }
 /*
@@ -120,15 +124,15 @@ bool fg6_judge_complex_ban(int x0,int y0,int dir,int num){
 }
 */
 
-void fg6_search_tops(bool banned,tree *node){
+void fg6_search_tops(bool banned,tree *node,int par_k){
     for(int k=0;k<MAX_WIDTH;k++){
         node->son[k]=(tree *)malloc(sizeof(tree));
         memset(node->son[k],0,sizeof(tree));
     }
     for(int i=1;i<=15;i++){
         for(int j=1;j<=15;j++){
-            if(banned?board[i][j]==EMPTY:(board[i][j]<0)){
-                int curr_value=fg6_value[i][j][0];
+            if(banned?par_board[par_k][i][j]==EMPTY:(par_board[par_k][i][j]<0)){
+                int curr_value=par_fg6_value[par_k][i][j][0];
                 if(curr_value>node->son[MAX_WIDTH-1]->value){
                     /*
                     //也许还有bug
@@ -183,7 +187,11 @@ void fg6_search_tops(bool banned,tree *node){
     node->searched=true;
 }
 
+<<<<<<< Updated upstream
 int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
+=======
+int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self,int par_k){
+>>>>>>> Stashed changes
     /*switch(WIDTH){
     case 10:
         if((double)(clock()-start)/CLOCKS_PER_SEC>13){
@@ -207,6 +215,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
         if(!is_self){
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
+<<<<<<< Updated upstream
                     if(board[i][j]>=0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
                         if(board[i][j]==fg6_self){
                             if(me_max<=fg6_value[i][j][10-fg6_self]) me_max=fg6_value[i][j][10-fg6_self];
@@ -217,6 +226,18 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
                             //*x0=i;
                             //*y0=j;
                             thee_max=fg6_value[i][j][10-!fg6_self];
+=======
+                    if(par_board[par_k][i][j]>=0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
+                        if(par_board[par_k][i][j]==BLACK){
+                            if(me_max<=par_fg6_value[par_k][i][j][10-BLACK]) me_max=par_fg6_value[par_k][i][j][10-BLACK];
+                        }
+                    }else{
+                        //if(fg6_value[i][j][10-!fg6_self]) printf("%d\n",fg6_value[i][j][10-!fg6_self]);
+                        if(thee_max<=par_fg6_value[par_k][i][j][10-WHITE]){
+                            //*x0=i;
+                            //*y0=j;
+                            thee_max=par_fg6_value[par_k][i][j][10-WHITE];
+>>>>>>> Stashed changes
                         }
                     }
                     /*
@@ -233,6 +254,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
         }else{
             for(int i=1;i<=15;i++){
                 for(int j=1;j<=15;j++){
+<<<<<<< Updated upstream
                     if(board[i][j]>=0){//按场上现有的子来评分，判断那子的落点能否与同色子连珠
                         if(board[i][j]==!fg6_self){
                             if(me_max<=fg6_value[i][j][10-!fg6_self]) me_max=fg6_value[i][j][10-!fg6_self];
@@ -241,6 +263,12 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
                         if((!fg6_self||board[i][j]==EMPTY)&&thee_max<=fg6_value[i][j][10-fg6_self]){
                             thee_max=fg6_value[i][j][10-fg6_self];
                         }
+=======
+                    if(par_board[par_k][i][j]==EMPTY){
+                        deepest_value-=par_fg6_value[par_k][i][j][10-!fg6_self];
+                    }else if(par_board[par_k][i][j]==fg6_self){
+                        deepest_value+=par_fg6_value[par_k][i][j][10-fg6_self];
+>>>>>>> Stashed changes
                     }
                 }
             }
@@ -249,7 +277,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
         return fg6_self==BLACK?me_max-thee_max:me_max-2*thee_max;
     }
 
-    if(!node->searched) fg6_search_tops(!(is_self^fg6_self),node);
+    if(!node->searched) fg6_search_tops(!(is_self^fg6_self),node,par_k);
     /*else{
         printf("在第%d层，%c%d被跳过\n",depth,'A'+node->j-1,node->i);
     //    getchar();
@@ -258,7 +286,7 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
     int EXM=is_self?-1000000000:1000000000,K=0;
     for(int k=0;k<WIDTH;k++){
         if(node->son[k]->i&&node->son[k]->j){
-            fg6_calc_score(alpha,beta,node->son[k],depth,is_self);
+            fg6_calc_score(alpha,beta,node->son[k],depth,is_self,par_k);
             if(is_self){
                 if(node->son[k]->value>EXM){
                     EXM=node->son[k]->value;
@@ -287,9 +315,65 @@ int fg6_minmax(int alpha,int beta,tree *node,int depth,bool is_self){
             if(beta<=alpha) break;
         }
     }
+<<<<<<< Updated upstream
     if(depth==DEPTH){
         x=fg6_tree->son[K]->i;
         y=fg6_tree->son[K]->j;
+=======
+    return EXM;//fg6_tree->son[K]->value;
+}
+
+int fg6_do_minmax(){
+    if(!fg6_tree->searched){
+        for(int k=0;k<MAX_WIDTH;k++){
+            fg6_tree->son[k]=(tree *)malloc(sizeof(tree));
+            memset(fg6_tree->son[k],0,sizeof(tree));
+        }
+        for(int i=1;i<=15;i++){
+            for(int j=1;j<=15;j++){
+                if(fg6_self?board[i][j]==EMPTY:(board[i][j]<0)){
+                    int curr_value=fg6_value[i][j][0];
+                    if(curr_value>fg6_tree->son[MAX_WIDTH-1]->value){
+                        int k=MAX_WIDTH-2;
+                        for(;k>=0;k--){
+                            if(curr_value>fg6_tree->son[k]->value){
+                                fg6_tree->son[k+1]->value=fg6_tree->son[k]->value;
+                                fg6_tree->son[k+1]->i=fg6_tree->son[k]->i;
+                                fg6_tree->son[k+1]->j=fg6_tree->son[k]->j;
+                            }else break;
+                        }
+                        fg6_tree->son[k+1]->value=curr_value;
+                        fg6_tree->son[k+1]->i=i;
+                        fg6_tree->son[k+1]->j=j;
+                    }
+                }
+            }
+        }
+        fg6_tree->searched=true;    
+    }
+        
+
+    int EXM=-1000000000,K=0;
+    int k=0;
+    
+    for(int i=0;i<MAX_WIDTH;i++){
+        memcpy(par_board_expanded[i],board_expanded,sizeof(int)*23*23);
+        memcpy(par_lianzhu[i],lianzhu,sizeof(int)*16*16*5);
+        memcpy(par_fg6_value[i],fg6_value,sizeof(int)*16*16*11);
+    }
+
+ //#pragma omp parallel for
+    for(k=0;k<WIDTH;k++){
+        if(fg6_tree->son[k]->i&&fg6_tree->son[k]->j){
+            fg6_calc_score(EXM,1000000000,fg6_tree->son[k],DEPTH,true,k);
+            if(fg6_tree->son[k]->value>EXM){
+                EXM=fg6_tree->son[k]->value;
+                K=k;
+            }
+            printf("%c%d %d %d\n",fg6_tree->son[k]->j+'A'-1,fg6_tree->son[k]->i,fg6_tree->son[k]->value,
+                fg6_value[fg6_tree->son[k]->i][fg6_tree->son[k]->j][0]);
+        }
+>>>>>>> Stashed changes
     }
     return EXM;//fg6_tree->son[K]->value;
 }
@@ -309,9 +393,9 @@ void fg6(){
         x=8;
         y=9-step;
     }else{
-        fg4_refresh_value(fg6_value,fg6_x_self,fg6_y_self);
+        fg4_refresh_value(fg6_x_self,fg6_y_self,-1);
         //fg4_debug();
-        fg4_refresh_value(fg6_value,last_x,last_y);
+        fg4_refresh_value(last_x,last_y,-1);
         //fg4_debug(fg6_value);
         printf("计算中...\n");
         start=clock();
@@ -411,6 +495,10 @@ void fg6(){
 }
 
 void nt6(){
+    for(int i=0;i<MAX_WIDTH;i++){
+        par_board[i]=(int(*)[23])(par_board_expanded[i][3]+3);
+    }
+
     memset(fg6_value,0,sizeof(fg6_value));
     lianzhu_calc_init();
     fg6_tree=(tree *)malloc(sizeof(tree));
@@ -422,7 +510,7 @@ void re6(bool is_black){
     for(int j=7-err;j>0;j--){
         int tmp_x=timeline[step+j].x;
         int tmp_y=timeline[step+j].y;
-        fg4_refresh_value(fg6_value,tmp_x,tmp_y);
+        fg4_refresh_value(tmp_x,tmp_y,-1);
     }
     tree_free(&fg6_tree);
     fg6_tree=(tree *)malloc(sizeof(tree));
