@@ -1,5 +1,13 @@
+/**********************************************************************************************
+Copyright (c) 2021 LazyBird
+File name:      wuziqi.c
+Description:    五子棋程序main函数所在源文件，完成棋盘落子、打印、判断等基础功能
+Author:         Eric Jin
+Date:           2021.12.31
+**********************************************************************************************/
 #include "wuziqi.h"
 
+/*成五判断：在（x0,y0）点落下whom颜色的子，判断是否成五*/
 bool win_or_not(int x0,int y0,bool whom){
     int i=1,j=1;
     while(i+j!=6&&(board[x0+i][y0]==whom&&++i||board[x0-j][y0]==whom&&++j));
@@ -15,7 +23,7 @@ bool win_or_not(int x0,int y0,bool whom){
     if(i+j==6) return true;
     return false;
 }
-
+/*开始界面玩家选择*/
 void choose_player(){
     char ch;
     do{
@@ -47,9 +55,10 @@ void choose_player(){
     printf("对战即将开始，按任意键进入\n");
     getchar();
 }
-
+/*初始化棋盘、时间线，并通知robot初始化*/
 void initialize(){
     srand((unsigned)time(NULL));
+    //棋盘初始化
     memset(board_expanded,EMPTY,sizeof(board_expanded));
     board=(int(*)[23])(board_expanded[3]+3);//BUG FIXED AT 211217
     for(int i=0;i<=22;i++){
@@ -59,14 +68,18 @@ void initialize(){
             }
         }
     }
+    //时间线（用于悔棋）初始化
     memset(timeline,EMPTY,sizeof(timeline));
     step=0;
+    //初始状态无错误
     err=0;
+    //通知黑白二色的robot初始化
     black_robot.nt();
     white_robot.nt();
 }
-
-void print_char(int i,int j){//https://zh.wikipedia.org/wiki/%E6%96%B9%E6%A1%86%E7%BB%98%E5%88%B6%E5%AD%97%E7%AC%A6
+/*打印（i,j）点的棋盘字符*/
+void print_char(int i,int j){
+    //字符参考了https://zh.wikipedia.org/wiki/%E6%96%B9%E6%A1%86%E7%BB%98%E5%88%B6%E5%AD%97%E7%AC%A6
     if(board[i][j]==EMPTY){
         if(i==15){
             printf(j==1?"┌":j==15?"┐":"┬");
@@ -92,7 +105,7 @@ void print_char(int i,int j){//https://zh.wikipedia.org/wiki/%E6%96%B9%E6%A1%86%
 #endif
     return;
 }
-
+/*打印棋盘以及时间线*/
 void print_board(){
     for(int i=15;i>=1;i--){
         printf("%2d",i);
@@ -112,7 +125,7 @@ void print_board(){
     }
     printf("\n");
 }
-
+/*根据err的错误代码打印错误信息，若游戏继续返回true，游戏结束返回false*/
 bool print_err(){
     switch (err){
     case 1:
@@ -156,45 +169,52 @@ bool print_err(){
     err=0;
     return true;
 }
-
+/*悔棋*/
 void retract(){
     if(--step){
         int prev_x=timeline[step].x;
         int prev_y=timeline[step].y;
         board[prev_x][prev_y]=EMPTY;
         if(--step){
+            //悔棋两步
             prev_x=timeline[step].x;
             prev_y=timeline[step].y;
             board[prev_x][prev_y]=EMPTY;
             err=5;
         }else{
+            //悔棋一步
             err=6;
             step++;
         }
     }else{
-            err=7;
-            step++;
+        //无法悔棋
+        err=7;
+        step++;
     }
     if(--step){
+        //更新上一时刻的落子点
         last_x=timeline[step].x;
         last_y=timeline[step].y;
     }
 }
-
+/*通知robot悔棋*/
 void announce_retract(){
     if(is_robot[BLACK]) black_robot.re(BLACK);
     if(is_robot[WHITE]) white_robot.re(WHITE);
 }
-
+/*获取输入，若输入合法返回true*/
 bool get_input(){
     if(is_robot[step%2]){
+        //当前玩家为robot，从robot计算函数获取落子点
         (step&1)?black_robot.fg():white_robot.fg();
         if(!(x&&y)){
+            //无子可落，平局
             err=9;
             return false;
         }
         return true;
     }else{
+        //当前玩家为human，从控制台读取落子点
         //输入
         printf("请输入第%d步\n",step);
         char input[4];
@@ -223,27 +243,30 @@ bool get_input(){
         }
     }
 }
-
+/*判断输入是否合法，更新错误代码，若合法返回true，不合法返回false*/
 bool judge_input(){
     if(board[x][y]>=0){
+        //该位置已经有子
         err=3;
         step--;
         return false;
     }
     if(step==1&&(x!=8||y!=8)){
+        //第一子当落天元
         err=4;
         step--;
         return false;
     }
     if(ban_black&&step&1&&board[x][y]==BAN){
+        //该点为黑方禁手
         err=10;
         step--;
         return false;
     }
-    if(win_or_not(x,y,step&1)) err=8;
+    if(win_or_not(x,y,step&1)) err=8; //获胜
     return true;
 }
-
+/*存储当前落子点到棋盘和时间线*/
 void store_input(){
     board[x][y]=(step&1);
     last_x=timeline[step].x=x;
@@ -251,30 +274,35 @@ void store_input(){
 }
 
 int main(){
+    //棋盘反色
 #ifndef __linux__
     system("color F0");
 #endif
-/*
-    black_robot.fg=fg4;
-    black_robot.re=re4;
-    black_robot.nt=nt4;
-    white_robot.fg=fg4;
-    white_robot.re=re4;
-    white_robot.nt=nt4;
-    *//*
-    black_robot.fg=fg4;
-    black_robot.re=re4;
-    black_robot.nt=nt4;
-    white_robot.fg=fg1;
-    white_robot.re=re12;
-    white_robot.nt=nt12;
-*/
+
+/* 老版本（1代、2代、3代（有bug）、4代、5代）的robot，已弃用，具体源文件见根目录下bak文件夹
+ *   black_robot.fg=fg4;
+ *   black_robot.re=re4;
+ *   black_robot.nt=nt4;
+ *   white_robot.fg=fg4;
+ *   white_robot.re=re4;
+ *   white_robot.nt=nt4;
+ *   *//*
+ *   black_robot.fg=fg4;
+ *   black_robot.re=re4;
+ *   black_robot.nt=nt4;
+ *   white_robot.fg=fg1;
+ *   white_robot.re=re12;
+ *   white_robot.nt=nt12;
+ */
+
+    //使用最新版本（6代）robot
     black_robot.fg=fg6;
     black_robot.re=re6;
     black_robot.nt=nt6;
     white_robot.fg=fg6;
     white_robot.re=re6;
     white_robot.nt=nt6;
+
     choose_player();
     initialize();
     while(++step){

@@ -1,3 +1,10 @@
+/**********************************************************************************************
+Copyright (c) 2021 LazyBird
+File name:      lianzhu2.c
+Description:    五子棋程序的源文件之一，用于判断棋形、禁手
+Author:         Eric Jin
+Date:           2021.12.31
+**********************************************************************************************/
 #include "wuziqi.h"
 
 void lianzhu_calc_find(int *pattern,int *x0,int d,int *n,bool *blank,bool consider_ban,int whom){
@@ -160,7 +167,7 @@ void lianzhu_refresh_ban(){
         }
     }
 }
-
+/*
 void lianzhu_refresh_ban_at_dir_near(int x0,int y0,int dir_4){
     int dx=0,dy=0;
     switch (dir_4){
@@ -234,4 +241,4 @@ void lianzhu_refresh_ban_near(int x0,int y0){
     for(int dir_4=1;dir_4<=4;dir_4++){
         lianzhu_refresh_ban_at_dir_near(x0,y0,dir_4);
     }
-}
+}*/
