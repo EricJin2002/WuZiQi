@@ -9,11 +9,13 @@ Date:           2021.12.31
 
 tree *tree_choose(tree *node,int i,int j){
     tree *ans=NULL;
+    WIDTH=11;
     for(int k=0;k<MAX_WIDTH&&node->son[k];k++){
         if(node->son[k]->i==i&&node->son[k]->j==j){
             ans=node->son[k];
             k++;
             printf("Ô¤ÁÏÖ®ÄÚ(¡«£þ¨Œ£þ)¡«\n");
+            WIDTH=IDEAL_WIDTH;
             for(;k<MAX_WIDTH&&node->son[k];k++){
                 tree_free(&node->son[k]);
             }
